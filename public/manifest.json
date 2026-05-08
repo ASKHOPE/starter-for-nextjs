@@ -1,0 +1,17 @@
+{
+  "name": "MyCalling",
+  "short_name": "Calling",
+  "description": "A super fast, lightweight communication PWA powered by Appwrite.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
