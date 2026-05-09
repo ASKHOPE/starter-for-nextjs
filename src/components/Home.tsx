@@ -9,9 +9,8 @@ import { auth } from '@/lib/auth';
 import { scriptures } from '@/lib/scriptures';
 import { getDatabase, type GospelDatabase } from '@/lib/offline-db';
 import type { Models } from 'appwrite';
-import "./app.css";
 
-import { 
+import type { 
   IConferenceTalk, 
   IMusic, 
   IGospelPrinciple, 

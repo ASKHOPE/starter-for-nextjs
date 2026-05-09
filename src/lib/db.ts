@@ -1,5 +1,6 @@
 import { databases } from "./appwrite";
-import { ID, Query, Models } from "appwrite";
+import { ID, Query } from "appwrite";
+import type { Models } from "appwrite";
 
 const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 const TALKS_COLLECTION = process.env.NEXT_PUBLIC_APPWRITE_TALKS_COLLECTION_ID!;

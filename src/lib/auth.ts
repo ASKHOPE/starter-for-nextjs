@@ -1,5 +1,6 @@
 import { account } from "./appwrite";
-import { ID, Models } from "appwrite";
+import { ID } from "appwrite";
+import type { Models } from "appwrite";
 
 /**
  * Auth Wrapper following AGENTS.md principles.

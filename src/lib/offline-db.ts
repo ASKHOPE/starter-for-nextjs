@@ -1,8 +1,5 @@
-import { 
-  createRxDatabase, 
-  RxDatabase,
-  RxCollection
-} from 'rxdb';
+import { createRxDatabase } from 'rxdb';
+import type { RxDatabase, RxCollection } from 'rxdb';
 import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 
 // Define the schemas
@@ -137,7 +134,7 @@ const comeFollowMeSchema = {
   required: ['id', 'title'],
 };
 
-import { 
+import type { 
   IConferenceTalk, 
   ISundayAgenda, 
   IMusic, 
