@@ -1,0 +1,50 @@
+{
+  "requestsFinished": 0,
+  "requestsFailed": 1,
+  "requestsRetries": 1,
+  "requestsFailedPerMinute": 54,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 114,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2026-05-08T22:23:12.966Z",
+  "crawlerFinishedAt": "2026-05-08T22:23:14.067Z",
+  "statsPersistedAt": "2026-05-08T22:23:14.067Z",
+  "crawlerRuntimeMillis": 1110,
+  "crawlerLastStartTimestamp": 1778278992957,
+  "requestRetryHistogram": [
+    null,
+    null,
+    null,
+    1
+  ],
+  "statsId": 1,
+  "requestAvgFailedDurationMillis": 114,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 114,
+  "requestsTotal": 1,
+  "requestsWithStatusCode": {},
+  "errors": {
+    "file:///C:/Users/Admin/Documents/Repo%20Proj/calling/scripts/scraper.mjs:54:9": {
+      "missing error code": {
+        "Error": {
+          "Request queue with id: 35416265-9050-4b45-9a6b-5970e87dd18e does not exist.": {
+            "count": 1
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "file:///C:/Users/Admin/Documents/Repo%20Proj/calling/scripts/scraper.mjs:54:9": {
+      "missing error code": {
+        "Error": {
+          "Request queue with id: 35416265-9050-4b45-9a6b-5970e87dd18e does not exist.": {
+            "count": 3
+          }
+        }
+      }
+    }
+  }
+}
