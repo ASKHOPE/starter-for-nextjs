@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "primary-container": "#1e293b",
+                    "surface-container-low": "#f2f4f6",
+                    "on-primary-fixed": "#111c2d",
+                    "on-error-container": "#93000a",
+                    "on-background": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "primary-fixed": "#d8e3fb",
+                    "on-secondary-container": "#004666",
+                    "secondary-fixed-dim": "#89ceff",
+                    "on-surface": "#191c1e",
+                    "on-secondary-fixed": "#001e2f",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-highest": "#e0e3e5",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "outline-variant": "#c5c6cd",
+                    "error-container": "#ffdad6",
+                    "surface": "#f7f9fb",
+                    "surface-tint": "#545f73",
+                    "on-tertiary-container": "#8191a9",
+                    "on-primary-container": "#8590a6",
+                    "inverse-primary": "#bcc7de",
+                    "primary-fixed-dim": "#bcc7de",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "secondary-fixed": "#c9e6ff",
+                    "on-primary": "#ffffff",
+                    "secondary": "#006591",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#75777d",
+                    "background": "#f7f9fb",
+                    "surface-container-high": "#e6e8ea",
+                    "tertiary-container": "#1a2a3e",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#d3e4fe",
+                    "surface-dim": "#d8dadc",
+                    "primary": "#091426",
+                    "tertiary": "#041528",
+                    "surface-bright": "#f7f9fb",
+                    "on-secondary-fixed-variant": "#004c6e",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "on-surface-variant": "#45474c",
+                    "secondary-container": "#39b8fd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-tablet": "48px",
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "margin-mobile": "24px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Outfit"],
+                    "label-md": ["Outfit"],
+                    "body-lg": ["Outfit"],
+                    "label-sm": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-sm": ["Outfit"],
+                    "body-md": ["Outfit"]
+            },
+            "fontSize": {
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Outfit', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 w-full bg-surface shadow-[0_4px_20px_rgba(30,41,59,0.05)]">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">Gospel Agenda</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional and clean studio portrait of a modern man with a serene expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXR5ZbuhS0U_DKNXCFX4Xf_yNwhDsXEX_wKp801iRRPc_RmDn22wVBiX_oczrcSMow3LkrLr6StiqsUCWrHiItDRASb3jAjterqsX6qeNHaj7DFUysOW-9hJJjUbch60KfStL_Qez9WcqWuOvdlWq2ZUX678dKCDLsBVZlf14xn_b-e_dz0mjLVcIBKTG_pVo7c5CqL-LGpYm-JLDAxhivYEiG3EzKF6xizn6-QQQQ6rzHboctokeogcgJMixIGqCAcygbNPxxLa8C"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile pt-stack-lg">
+<!-- Resources Headline -->
+<div class="mb-stack-lg">
+<h2 class="font-headline-xl text-headline-xl text-primary">Resources</h2>
+<p class="font-body-md text-on-surface-variant mt-2">Essential study materials and media for church service.</p>
+</div>
+<!-- Search Feature -->
+<div class="mb-stack-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary transition-colors" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-4 pl-12 pr-4 font-body-md focus:ring-2 focus:ring-secondary focus:border-transparent transition-all outline-none" placeholder="Search resources, scriptures, or manuals..." type="text"/>
+</div>
+</div>
+<!-- Categorized Grid (Bento Style) -->
+<section class="grid grid-cols-2 gap-gutter mb-stack-lg">
+<!-- Hymns Card -->
+<div class="bg-primary text-on-primary p-4 rounded-xl shadow-lg flex flex-col justify-between overflow-hidden relative group cursor-pointer border border-transparent hover:border-secondary-container transition-all min-h-[160px]">
+<div class="z-10"><div class="flex justify-between items-start mb-6">
+<div class="p-2 bg-secondary-container rounded-lg">
+<span class="material-symbols-outlined text-on-secondary-container text-[20px]" data-icon="music_note">music_note</span>
+</div>
+<span class="material-symbols-outlined text-secondary-fixed group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold">Hymns</h3>
+<p class="font-body-sm opacity-80 leading-tight mt-1">Sacred music</p></div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl opacity-10" data-icon="library_music">library_music</span>
+</div>
+<!-- General Conference Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20_rgba(30,41,59,0.05)] border border-outline-variant hover:border-secondary transition-all group min-h-[160px]"><div class="flex justify-between items-start mb-6">
+<div class="p-2 bg-secondary-container rounded-lg">
+<span class="material-symbols-outlined text-on-secondary-container text-[20px]" data-icon="podium">podium</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-primary">General Conference</h3>
+<p class="font-body-sm text-on-surface-variant leading-tight mt-1">Latest messages</p></div>
+<!-- Come, Follow Me Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20_rgba(30,41,59,0.05)] border border-outline-variant hover:border-secondary transition-all group min-h-[160px]"><div class="p-2 bg-secondary-container rounded-lg w-fit mb-6">
+<span class="material-symbols-outlined text-on-secondary-container text-[20px]" data-icon="menu_book">menu_book</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-primary">Come, Follow Me</h3>
+<p class="font-body-sm text-on-surface-variant leading-tight mt-1">Daily study guide</p></div>
+<!-- Gospel Principles Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20_rgba(30,41,59,0.05)] border border-outline-variant hover:border-secondary transition-all group min-h-[160px]"><div class="p-2 bg-secondary-container rounded-lg w-fit mb-6">
+<span class="material-symbols-outlined text-on-secondary-container text-[20px]" data-icon="lightbulb">lightbulb</span>
+</div>
+<h3 class="font-headline-md text-body-md font-bold text-primary">Gospel Principles</h3>
+<p class="font-body-sm text-on-surface-variant leading-tight mt-1">Doctrines &amp; teachings</p></div>
+</section>
+<!-- Recent Collections -->
+<section class="mb-stack-lg">
+<div class="flex items-center justify-between mb-stack-md">
+<h3 class="font-headline-md text-headline-md text-primary">Recently Viewed</h3>
+<button class="text-secondary font-label-md hover:underline">Clear</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+<div class="flex items-center p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-12 h-16 bg-surface-container rounded border border-outline-variant flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" data-icon="article">article</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-md text-body-md font-semibold text-primary">A Test of Your Faith</h4>
+<p class="font-body-sm text-on-surface-variant">Oct 2023 General Conference</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center p-4 hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-12 h-16 bg-surface-container rounded border border-outline-variant flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" data-icon="music_video">music_video</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-md text-body-md font-semibold text-primary">Redeemer of Israel</h4>
+<p class="font-body-sm text-on-surface-variant">Hymn #6</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Resource Actions -->
+<section class="flex flex-col gap-4 mb-stack-lg">
+<button class="w-full bg-primary text-on-primary py-4 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="sync">sync</span>
+Sync Resources
+</button>
+<button class="w-full bg-surface-container-lowest text-primary border border-outline-variant py-4 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:bg-surface-container-low active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+Manage Resources
+</button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-8 bg-surface-container-lowest shadow-[0_-4px_20px_rgba(30,41,59,0.05)] border-t border-outline-variant">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-sm text-label-sm">Plan</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-label-sm text-label-sm">Resources</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="build">build</span>
+<span class="font-label-sm text-label-sm">Tools</span>
+</button>
+</nav>
+<!-- FAB -->
+<div class="fixed bottom-24 right-6">
+<button class="w-14 h-14 bg-secondary text-on-secondary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="edit_note" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+</button>
+</div>
+</body></html>

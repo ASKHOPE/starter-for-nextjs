@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lesson Architect - Gospel Agenda</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#0b1c30",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-container": "#004666",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-container": "#8191a9",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#39b8fd",
+                        "background": "#f7f9fb",
+                        "outline-variant": "#c5c6cd",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary-container": "#1a2a3e",
+                        "on-surface-variant": "#45474c",
+                        "outline": "#75777d",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed": "#c9e6ff",
+                        "primary-fixed": "#d8e3fb",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "surface-container": "#eceef0",
+                        "tertiary": "#041528",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "surface": "#f7f9fb",
+                        "primary-container": "#1e293b",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "primary": "#091426",
+                        "on-primary-container": "#8590a6",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#bcc7de",
+                        "secondary": "#006591",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#111c2d",
+                        "primary-fixed-dim": "#bcc7de",
+                        "inverse-on-surface": "#eff1f3",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed-dim": "#89ceff",
+                        "surface-tint": "#545f73",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#001e2f",
+                        "on-secondary-fixed-variant": "#004c6e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "unit": "4px",
+                        "margin-tablet": "48px",
+                        "gutter": "16px",
+                        "stack-md": "16px",
+                        "margin-mobile": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Outfit"],
+                        "body-lg": ["Outfit"],
+                        "label-sm": ["Outfit"],
+                        "label-md": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "headline-xl": ["Outfit"],
+                        "body-sm": ["Outfit"],
+                        "headline-md": ["Outfit"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="bg-surface dark:bg-background shadow-[0_4px_20px_rgba(30,41,59,0.05)] sticky top-0 z-50">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-surface-container-low transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary">menu</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">Lesson Architect</h1>
+</div>
+<div class="flex items-center">
+<img alt="User Profile" class="w-10 h-10 rounded-full border-2 border-primary-fixed shadow-sm" data-alt="A high-quality professional studio portrait of a middle-aged administrator wearing a clean white shirt and dark blazer. The lighting is soft and cinematic, creating a welcoming and authoritative presence against a neutral slate grey background. The image has a sharp focus with a shallow depth of field, reflecting a modern and sophisticated digital identity consistent with a clean industrial elegance aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPIN4bDw6B2DLO0Ywx4uHiFzOA1PrUREcL1oWYmCmWpUzJGfdEfwhwbG2eTCzhlFCqT6l82VOzwcCo_IRU6SCw1MQnPyi66flKiV5FaAb2mrVE6UHIaTXKL72NYNe6SvAO0_NGllpsxgdbSTZ3nuViRVngbwf0srjUQx3BrJxp-Gha4_E2rKVmpYMfYwp2E3cemvAAPgzAOAkS0wpkasXyPxU5gPMGfgXc-vGPW3Pjagu-l9Pg5nKrXwr93s_4u6rB-yOElPm06pHv"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile py-stack-lg space-y-stack-lg">
+<!-- Hero Inspiration Card -->
+<div class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary-container p-stack-lg shadow-sm">
+<div class="relative z-10 space-y-stack-sm">
+<p class="font-label-md text-label-md uppercase tracking-widest text-on-primary-container opacity-80">Next Session</p>
+<h2 class="font-headline-xl text-headline-xl">Sunday, Oct 22, 2023</h2>
+<p class="font-body-md text-body-md text-on-primary-container max-w-md">Orchestrate a seamless spiritual experience through meticulous preparation and inspired leadership.</p>
+</div>
+<div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-secondary-container/20 to-transparent pointer-events-none"></div>
+</div>
+<form class="space-y-stack-lg">
+<!-- Section: Sunday School -->
+<section class="space-y-stack-md">
+<div class="flex items-center gap-3 border-b border-outline-variant pb-stack-sm">
+<span class="material-symbols-outlined text-secondary">school</span>
+<h3 class="font-headline-md text-headline-md text-primary">Sunday School</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">Teacher/Discussion Leader</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Enter name..." type="text"/>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">Lesson Topic/Scripture Block</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="e.g. Philippians; Colossians" type="text"/>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200 md:col-span-2">
+<label class="block font-label-md text-label-md text-outline mb-unit">Announcements</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Relevant ward or stake news..." rows="2"></textarea>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200 md:col-span-2">
+<label class="block font-label-md text-label-md text-outline mb-unit">Class Specific Needs</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="AV equipment, seating, etc." type="text"/>
+</div>
+</div>
+</section>
+<!-- Section: Elders Quorum & Relief Society -->
+<section class="space-y-stack-md">
+<div class="flex items-center justify-between border-b border-outline-variant pb-stack-sm">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">groups</span>
+<h3 class="font-headline-md text-headline-md text-primary">EQ / Relief Society</h3>
+</div>
+<div class="flex bg-surface-container-high p-1 rounded-full">
+<button class="px-4 py-1.5 bg-white text-primary rounded-full font-label-md text-label-md shadow-sm" type="button">Joint</button>
+<button class="px-4 py-1.5 text-outline-variant font-label-md text-label-md hover:text-primary transition-colors" type="button">Separate</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">Teacher/Discussion Leader</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Enter name..." type="text"/>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">General Conference Talk</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Title and speaker..." type="text"/>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200 md:col-span-2">
+<label class="block font-label-md text-label-md text-outline mb-unit">Announcements</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Service opportunities, welfare..." rows="2"></textarea>
+</div>
+</div>
+</section>
+<!-- Section: YM / YW -->
+<section class="space-y-stack-md">
+<div class="flex items-center gap-3 border-b border-outline-variant pb-stack-sm">
+<span class="material-symbols-outlined text-secondary">star</span>
+<h3 class="font-headline-md text-headline-md text-primary">Young Men &amp; Women</h3>
+</div>
+<!-- Bento Layout for Youth -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="md:col-span-2 space-y-stack-md">
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">Teacher/Discussion Leader</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Youth leader or specialist..." type="text"/>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200">
+<label class="block font-label-md text-label-md text-outline mb-unit">Lesson Topic</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Come Follow Me curriculum topic..." type="text"/>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-slate-200 flex flex-col">
+<label class="block font-label-md text-label-md text-outline mb-unit">Class Specific Needs</label>
+<textarea class="flex-grow w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-2 focus:ring-secondary-container outline-none transition-all" placeholder="Activity supplies, handouts, dietary restrictions for treats..."></textarea>
+</div>
+</div>
+</section>
+<!-- Save Action -->
+<div class="pt-stack-md">
+<button class="w-full bg-secondary-container hover:bg-secondary transition-all text-on-secondary-container hover:text-white font-headline-md text-headline-md py-4 rounded-xl shadow-lg active:scale-95 duration-200 flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+                    Save Lesson Plan
+                </button>
+</div>
+</form>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest border-t border-outline-variant shadow-[0_-4px_20px_rgba(30,41,59,0.05)] flex justify-around items-center px-4 py-3 pb-8">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-1">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-sm text-label-sm mt-1">Resources</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="font-label-sm text-label-sm mt-1">Tools</span>
+</a>
+</nav>
+</body></html>

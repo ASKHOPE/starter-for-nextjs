@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - Gospel Agenda</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8191a9",
+                        "secondary": "#006591",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "secondary-fixed": "#c9e6ff",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#041528",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#111c2d",
+                        "primary-fixed": "#d8e3fb",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-fixed": "#001e2f",
+                        "on-surface-variant": "#45474c",
+                        "primary-fixed-dim": "#bcc7de",
+                        "outline-variant": "#c5c6cd",
+                        "on-secondary-container": "#004666",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-primary-container": "#8590a6",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eceef0",
+                        "surface-dim": "#d8dadc",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#545f73",
+                        "outline": "#75777d",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-container": "#1a2a3e",
+                        "primary-container": "#1e293b",
+                        "secondary-container": "#39b8fd",
+                        "surface": "#f7f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#091426",
+                        "inverse-primary": "#bcc7de",
+                        "background": "#f7f9fb",
+                        "secondary-fixed-dim": "#89ceff",
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "tertiary-fixed": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-tablet": "48px",
+                        "margin-mobile": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "stack-lg": "32px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Outfit"],
+                        "headline-xl": ["Outfit"],
+                        "label-sm": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "body-lg": ["Outfit"],
+                        "label-md": ["Outfit"],
+                        "body-md": ["Outfit"],
+                        "headline-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["10px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Outfit', sans-serif; min-height: max(884px, 100dvh); }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-surface shadow-[0_4px_20px_rgba(30,41,59,0.05)] docked full-width top-0 z-50 sticky">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full max-w-7xl mx-auto">
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded-full active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">Gospel Agenda</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden active:scale-95 transition-transform duration-200">
+<img alt="User profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfByTWiiLXZVXcoHdWX07fwolfOVSFAtmRC30dPyyxKmxFivdVYXX9hjyYGmsK2Ad2LQUGqSfqnjxbPk3XJq8M24v08ZVRqXbhSHkMJLMXQj2coj7gak9av9-aXuTlMn8vb_DE9k9qUP5KNC26RBwDgACjfDTEjXDFrR9scbDtQoi_XddoSwsw0u9E1wDyo7E5UWNgrZWnwAzxWoC5KURJKa4W-RbrGr2smhsQNnaM9-Lfu2_llPy0UpnQ9-m9Zm-Sw3GwsrKgwDmV"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile py-stack-lg pb-32">
+<header class="mb-stack-lg">
+<h2 class="font-headline-xl text-headline-xl text-primary">Settings</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your devotional preferences and account connectivity.</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: Core Settings -->
+<div class="md:col-span-8 space-y-stack-lg">
+<!-- Account Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] p-stack-md border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-stack-md">
+<span class="material-symbols-outlined text-secondary" data-icon="person">person</span>
+<h3 class="font-headline-md text-headline-md text-primary">Account Information</h3>
+</div>
+<div class="space-y-stack-md">
+<div class="grid grid-cols-1 gap-stack-md">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant px-1">Account Name</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-all" type="text" value="Theophilus Blackwood"/>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-stack-md">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant px-1">Email</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-all" type="email" value="t.blackwood@devotion.org"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant px-1">Phone</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-all" type="tel" value="+1 (555) 012-3456"/>
+</div>
+</div>
+</div>
+<button class="bg-primary-container text-white px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">Update Profile</button>
+</div>
+</section>
+<!-- Theme Selector Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] p-stack-md border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-stack-md">
+<span class="material-symbols-outlined text-secondary" data-icon="palette">palette</span>
+<h3 class="font-headline-md text-headline-md text-primary">Theme Appearance</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-stack-md">
+<!-- Light Theme -->
+<div class="relative group cursor-pointer border-2 border-secondary-container rounded-xl p-4 bg-surface hover:bg-surface-container transition-all">
+<div class="aspect-video mb-3 rounded-lg bg-white border border-outline-variant shadow-sm overflow-hidden p-2 space-y-1">
+<div class="w-1/2 h-2 bg-slate-200 rounded"></div>
+<div class="w-full h-1 bg-slate-100 rounded"></div>
+<div class="w-2/3 h-1 bg-slate-100 rounded"></div>
+</div>
+<span class="font-label-md text-label-md text-primary block text-center">Light</span>
+<div class="absolute top-2 right-2 h-5 w-5 bg-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]" data-icon="check">check</span>
+</div>
+</div>
+<!-- Dark Theme -->
+<div class="relative group cursor-pointer border-2 border-transparent hover:border-outline-variant rounded-xl p-4 bg-surface hover:bg-surface-container transition-all">
+<div class="aspect-video mb-3 rounded-lg bg-tertiary border border-tertiary-container shadow-sm overflow-hidden p-2 space-y-1">
+<div class="w-1/2 h-2 bg-slate-700 rounded"></div>
+<div class="w-full h-1 bg-slate-800 rounded"></div>
+<div class="w-2/3 h-1 bg-slate-800 rounded"></div>
+</div>
+<span class="font-label-md text-label-md text-primary block text-center">Dark</span>
+</div>
+<!-- System Theme -->
+<div class="relative group cursor-pointer border-2 border-transparent hover:border-outline-variant rounded-xl p-4 bg-surface hover:bg-surface-container transition-all">
+<div class="aspect-video mb-3 rounded-lg bg-gradient-to-r from-white to-tertiary border border-outline-variant shadow-sm overflow-hidden flex">
+<div class="w-1/2 h-full p-2 space-y-1">
+<div class="w-full h-2 bg-slate-200 rounded"></div>
+</div>
+<div class="w-1/2 h-full p-2 space-y-1 bg-tertiary">
+<div class="w-full h-2 bg-slate-700 rounded"></div>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary block text-center">System Default</span>
+</div>
+</div>
+</section>
+<!-- Support Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] p-stack-md border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-stack-md">
+<span class="material-symbols-outlined text-secondary" data-icon="help_outline">help_outline</span>
+<h3 class="font-headline-md text-headline-md text-primary">Support</h3>
+</div>
+<div class="space-y-2">
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="quiz">quiz</span>
+<span class="font-body-md text-primary">FAQ</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low rounded-lg transition-colors group border-t border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="support_agent">support_agent</span>
+<span class="font-body-md text-primary">Help</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low rounded-lg transition-colors group border-t border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="info">info</span>
+<span class="font-body-md text-primary">About Us</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Right Column: Status & Infrastructure -->
+<div class="md:col-span-4 space-y-stack-lg">
+<!-- Connection Status -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] p-stack-md border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-stack-md">
+<span class="material-symbols-outlined text-secondary" data-icon="cloud_done">cloud_done</span>
+<h3 class="font-headline-md text-headline-md text-primary">Connection</h3>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3 p-3 bg-green-50 border border-green-100 rounded-lg">
+<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="font-label-md text-label-md text-green-700">Online &amp; Synchronized</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Last Sync</span>
+<span class="font-label-md text-label-md text-primary">2 minutes ago</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Server</span>
+<span class="font-label-md text-label-md text-primary">primary-eu-west-1</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Latency</span>
+<span class="font-label-md text-label-md text-primary">42ms</span>
+</div>
+</div>
+<div class="pt-2">
+<button class="w-full flex items-center justify-center gap-2 border border-secondary text-secondary font-label-md text-label-md py-2 rounded-lg hover:bg-secondary-fixed/30 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="sync">sync</span>
+                                Force Manual Sync
+                            </button>
+</div>
+</div>
+</section>
+<!-- App Version -->
+<div class="text-center pt-stack-md">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Gospel Agenda v1.2.0 (Build 8842)</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">© 2024 Devotional Path Lab</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-8 bg-surface-container-lowest shadow-[0_-4px_20px_rgba(30,41,59,0.05)] border-t border-outline-variant">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-sm text-label-sm">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-1 hover:text-secondary transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-sm text-label-sm">Resources</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings" data-weight="fill" style="font-variation-settings: 'FILL' 1;">build</span>
+<span class="font-label-sm text-label-sm">Tools</span>
+</a>
+</nav>
+</body></html>

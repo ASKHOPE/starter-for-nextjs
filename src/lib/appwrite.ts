@@ -1,10 +1,39 @@
-import { Client, Account, Databases } from "appwrite";
+import { Client, Account, Databases, Storage } from "node-appwrite";
 
-const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+export async function createAdminClient() {
+  const client = new Client()
+    .setEndpoint(process.env.APPWRITE_ENDPOINT || process.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+    .setProject(process.env.APPWRITE_PROJECT_ID || process.env.PUBLIC_APPWRITE_PROJECT_ID!)
+    .setKey(process.env.APPWRITE_API_KEY!);
 
-const account = new Account(client);
-const databases = new Databases(client);
+  return {
+    get account() {
+      return new Account(client);
+    },
+    get databases() {
+      return new Databases(client);
+    },
+    get storage() {
+      return new Storage(client);
+    },
+  };
+}
 
-export { client, account, databases };
+export async function createSessionClient(sessionValue?: string) {
+  const client = new Client()
+    .setEndpoint(process.env.APPWRITE_ENDPOINT || process.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+    .setProject(process.env.APPWRITE_PROJECT_ID || process.env.PUBLIC_APPWRITE_PROJECT_ID!);
+
+  if (sessionValue) {
+    client.setSession(sessionValue);
+  }
+
+  return {
+    get account() {
+      return new Account(client);
+    },
+    get databases() {
+      return new Databases(client);
+    },
+  };
+}

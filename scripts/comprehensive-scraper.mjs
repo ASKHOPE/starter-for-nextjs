@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { Client, Databases, ID, Query } from 'appwrite';
+import { Client, Databases, ID, Query } from 'node-appwrite';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -11,10 +11,19 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const DATA_FILE = path.resolve(__dirname, 'data/library.json');
 const APPWRITE_ENDPOINT = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
-const APPWRITE_PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 
-const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+const client = new Client()
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID)
+    .setKey(process.env.APPWRITE_API_KEY);
+
+console.log(`🚀 Connecting to Appwrite:`);
+console.log(`   Endpoint: ${APPWRITE_ENDPOINT}`);
+console.log(`   Project:  ${APPWRITE_PROJECT_ID}`);
+console.log(`   Key:      ${process.env.APPWRITE_API_KEY ? 'Present (Hidden)' : 'Missing!'}`);
+
 const databases = new Databases(client);
 
 async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -208,25 +217,19 @@ async function main() {
     const browser = await chromium.launch();
     
     // 1. General Conference
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2026/04?lang=eng', 'general_conference_talks', { conference: 'April 2026' });
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2025/04?lang=eng', 'general_conference_talks', { conference: 'April 2025' });
-
-    // 2. Come Follow Me (2026 only)
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/come-follow-me-for-home-and-church-old-testament-2026?lang=eng', 'come_follow_me');
-
-    // 3. Gospel Principles
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/gospel-principles?lang=eng', 'gospel_principles');
-
-    // 4. Split Music Collections
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=eng', 'hymns', { isNumbered: true, shouldScroll: true });
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/childrens-songbook?lang=eng', 'childrens_songbook', { isNumbered: true, shouldScroll: true });
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns-for-home-and-church?lang=eng', 'new_hymns', { isNumbered: true, shouldScroll: true });
-    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/youth-music?lang=eng', 'youth_music', { shouldScroll: true });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2026/04?lang=eng', 'general_conference_talks', { conference: 'April 2026' });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2025/04?lang=eng', 'general_conference_talks', { conference: 'April 2025' });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/come-follow-me-for-home-and-church-old-testament-2026?lang=eng', 'come_follow_me');
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/gospel-principles?lang=eng', 'gospel_principles');
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=eng', 'hymns', { isNumbered: true, shouldScroll: true });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/childrens-songbook?lang=eng', 'childrens_songbook', { isNumbered: true, shouldScroll: true });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns-for-home-and-church?lang=eng', 'new_hymns', { isNumbered: true, shouldScroll: true });
+    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/youth-music?lang=eng', 'youth_music', { shouldScroll: true });
 
     await browser.close();
 
     if (!fs.existsSync(path.dirname(DATA_FILE))) fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-    fs.writeFileSync(DATA_FILE, JSON.stringify(libraryData, null, 2));
+    // fs.writeFileSync(DATA_FILE, JSON.stringify(libraryData, null, 2));
     await syncToAppwrite();
 }
 
