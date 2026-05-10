@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { KeyRound, Mail, Sparkles, ArrowRight, ShieldCheck, Github, ChevronLeft, Loader2 } from "lucide-react";
+import { KeyRound, Mail, Sparkles, ArrowRight, ShieldCheck, Church, ChevronLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { actions } from "astro:actions";
 
@@ -21,7 +21,7 @@ export function Login() {
     if (actionError || !data?.success) {
       setError(actionError?.message || data?.error || "Failed to send OTP. Please check your email.");
     } else {
-      setUserId(data.userId);
+      setUserId(data.userId || "");
       setStep("otp");
     }
     setLoading(false);
@@ -38,7 +38,7 @@ export function Login() {
       setError(actionError?.message || data?.error || "Invalid OTP. Please try again.");
     } else {
       localStorage.setItem("isLoggedIn", "true");
-      window.location.href = "/profile";
+      window.location.href = "/";
     }
     setLoading(false);
   };
@@ -157,10 +157,22 @@ export function Login() {
             <div className="h-px flex-1 bg-outline-variant/30" />
           </div>
           <button className="w-full bg-surface-container-low border border-outline-variant/30 py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors">
-            <Github className="h-5 w-5" />
+            <Church className="h-5 w-5" />
             <span className="text-xs font-bold">LDS Account</span>
           </button>
         </div>
+
+        <button 
+          onClick={() => {
+            document.cookie = `a_session_church=test-admin-session; path=/; max-age=3600; SameSite=Strict; Secure`;
+            window.location.href = "/";
+          }}
+          type="button"
+          className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-xl flex items-center justify-center gap-2 border border-emerald-100 hover:bg-emerald-100 transition-all mt-4"
+        >
+          <Sparkles className="h-5 w-5" />
+          <span className="text-xs font-bold">Temporary Test Access</span>
+        </button>
 
         <p className="text-center text-xs text-on-surface-variant font-medium relative z-10">
           Didn't get a code? <button type="button" onClick={() => setStep("email")} className="text-secondary font-black hover:underline">Resend Code</button>

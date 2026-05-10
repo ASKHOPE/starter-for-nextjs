@@ -2,9 +2,9 @@ import { Client, Account, Databases, Storage } from "node-appwrite";
 
 export async function createAdminClient() {
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_ENDPOINT || process.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-    .setProject(process.env.APPWRITE_PROJECT_ID || process.env.PUBLIC_APPWRITE_PROJECT_ID!)
-    .setKey(process.env.APPWRITE_API_KEY!);
+    .setEndpoint(import.meta.env.APPWRITE_ENDPOINT || import.meta.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+    .setProject(import.meta.env.APPWRITE_PROJECT_ID || import.meta.env.PUBLIC_APPWRITE_PROJECT_ID!)
+    .setKey(import.meta.env.APPWRITE_API_KEY!);
 
   return {
     get account() {
@@ -21,8 +21,8 @@ export async function createAdminClient() {
 
 export async function createSessionClient(sessionValue?: string) {
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_ENDPOINT || process.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-    .setProject(process.env.APPWRITE_PROJECT_ID || process.env.PUBLIC_APPWRITE_PROJECT_ID!);
+    .setEndpoint(import.meta.env.APPWRITE_ENDPOINT || import.meta.env.PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+    .setProject(import.meta.env.APPWRITE_PROJECT_ID || import.meta.env.PUBLIC_APPWRITE_PROJECT_ID!);
 
   if (sessionValue) {
     client.setSession(sessionValue);

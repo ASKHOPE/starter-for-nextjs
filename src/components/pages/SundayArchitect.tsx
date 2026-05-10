@@ -1,9 +1,125 @@
 import { motion } from "framer-motion";
-import { Music, Users, Book, Save, Plus, Clock, MapPin, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { Church, Music, Users, Book, Save, Plus, Clock, MapPin, Sparkles, Loader2, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
+import { actions } from "astro:actions";
 
 export function SundayArchitect() {
   const [activeTab, setActiveTab] = useState("sacrament");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  const [agenda, setAgenda] = useState({
+    id: "",
+    title: "Sunday Sacrament Service",
+    date: new Date().toISOString().split('T')[0],
+    type: "sacrament" as const,
+    status: "draft" as const,
+    data: {
+      leadership: { presiding: "", conducting: "", organist: "", chorister: "" },
+      program: { openingHymn: "", sacramentHymn: "", closingHymn: "", items: [] as any[] },
+      classes: [
+        { name: "Adult Gospel Doctrine", teacher: "", topic: "" },
+        { name: "Youth Sunday School", teacher: "", topic: "" }
+      ]
+    }
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      loadAgenda(id);
+    }
+  }, []);
+
+  async function loadAgenda(id: string) {
+    setLoading(true);
+    const { data } = await actions.getAgendas();
+    if (data?.success) {
+      const found = data.agendas.find((a: any) => a.$id === id);
+      if (found) {
+        setAgenda({
+          id: found.$id,
+          title: found.title,
+          date: found.date,
+          type: found.type,
+          status: found.status,
+          data: found.data
+        });
+      }
+    }
+    setLoading(false);
+  }
+
+  const [hymnSuggestions, setHymnSuggestions] = useState<any[]>([]);
+  const [activeSearchField, setActiveSearchField] = useState<string | null>(null);
+
+  const searchHymns = async (query: string, field: string) => {
+    setActiveSearchField(field);
+    if (query.length < 2) {
+      setHymnSuggestions([]);
+      return;
+    }
+    const { data } = await actions.getLibraryItems({ collection: 'hymns', search: query });
+    if (data?.success) {
+      setHymnSuggestions(data.items);
+    }
+  };
+
+  const selectHymn = (hymn: any, section: string, field: string) => {
+    const value = `${hymn.number ? `#${hymn.number} ` : ""}${hymn.title}`;
+    updateData(section, field, value);
+    setHymnSuggestions([]);
+    setActiveSearchField(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const { data, error } = await actions.saveAgenda(agenda);
+    if (data?.success) {
+      alert("Agenda saved successfully!");
+      if (!agenda.id) {
+        window.history.replaceState({}, "", `/plan/sunday?id=${data.agenda.$id}`);
+        setAgenda(prev => ({ ...prev, id: data.agenda.$id }));
+      }
+    } else {
+      alert("Failed to save agenda: " + (error?.message || "Unknown error"));
+    }
+    setSaving(false);
+  };
+
+  const updateData = (section: string, field: string, value: string) => {
+    setAgenda(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        [section]: {
+          ...(prev.data as any)[section],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const updateClass = (index: number, field: string, value: string) => {
+    setAgenda(prev => {
+      const newClasses = [...prev.data.classes];
+      newClasses[index] = { ...newClasses[index], [field]: value };
+      return {
+        ...prev,
+        data: { ...prev.data, classes: newClasses }
+      };
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-on-surface-variant font-bold">Loading Agenda Architect...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="pb-32 space-y-10">
@@ -14,17 +130,39 @@ export function SundayArchitect() {
             <Sparkles className="h-3 w-3" />
             Agenda Architect
           </div>
-          <h1 className="text-4xl font-black text-primary tracking-tight">Sunday Service</h1>
-          <p className="text-on-surface-variant font-medium">Oak Hills 4th Ward • May 17, 2026</p>
+          <h1 className="text-4xl font-black text-primary tracking-tight">
+            <input 
+              type="text" 
+              value={agenda.title} 
+              onChange={(e) => setAgenda(prev => ({ ...prev, title: e.target.value }))}
+              className="bg-transparent border-none outline-none focus:ring-0 w-full"
+            />
+          </h1>
+          <p className="text-on-surface-variant font-medium flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <input 
+              type="date" 
+              value={agenda.date} 
+              onChange={(e) => setAgenda(prev => ({ ...prev, date: e.target.value }))}
+              className="bg-transparent border-none outline-none focus:ring-0 text-sm font-bold"
+            />
+          </p>
         </div>
         
         <div className="flex gap-3">
-          <button className="flex-1 md:flex-none bg-surface-container-low border border-outline-variant/30 px-6 py-3 rounded-2xl font-bold text-primary hover:bg-surface-variant transition-all">
+          <button 
+            onClick={() => window.open(`/preview/agenda?id=${agenda.id}`, '_blank')}
+            className="flex-1 md:flex-none bg-surface-container-low border border-outline-variant/30 px-6 py-3 rounded-2xl font-bold text-primary hover:bg-surface-variant transition-all"
+          >
             Preview
           </button>
-          <button className="flex-1 md:flex-none bg-secondary text-on-secondary px-8 py-3 rounded-2xl font-bold shadow-xl shadow-secondary/20 hover:scale-105 transition-transform flex items-center justify-center gap-2">
-            <Save className="h-5 w-5" />
-            Save Program
+          <button 
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 md:flex-none bg-secondary text-on-secondary px-8 py-3 rounded-2xl font-bold shadow-xl shadow-secondary/20 hover:scale-105 transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+            {saving ? "Saving..." : "Save Program"}
           </button>
         </div>
       </div>
@@ -51,9 +189,19 @@ export function SundayArchitect() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-8">
-          {activeTab === "sacrament" ? <SacramentFlow /> : <SecondHourFlow />}
+          {activeTab === "sacrament" ? (
+            <SacramentFlow 
+              agenda={agenda} 
+              updateData={updateData} 
+              searchHymns={searchHymns}
+              hymnSuggestions={hymnSuggestions}
+              activeSearchField={activeSearchField}
+              selectHymn={selectHymn}
+            />
+          ) : (
+            <SecondHourFlow agenda={agenda} updateClass={updateClass} />
+          )}
         </div>
 
         {/* Sticky Sidebar / Quick Info */}
@@ -95,50 +243,91 @@ function ChurchIcon(props: any) {
   );
 }
 
-function SacramentFlow() {
+function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
       <Section title="Leadership & Music" icon={Users}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ModernInput label="Presiding" placeholder="Bishop Smith" />
-          <ModernInput label="Conducting" placeholder="Brother Jones" />
-          <ModernInput label="Organist" placeholder="Sister Miller" />
-          <ModernInput label="Chorister" placeholder="Brother Wilson" />
+          <ModernInput label="Presiding" placeholder="Bishop Smith" value={agenda.data.leadership.presiding} onChange={(val: string) => updateData('leadership', 'presiding', val)} />
+          <ModernInput label="Conducting" placeholder="Brother Jones" value={agenda.data.leadership.conducting} onChange={(val: string) => updateData('leadership', 'conducting', val)} />
+          <ModernInput label="Organist" placeholder="Sister Miller" value={agenda.data.leadership.organist} onChange={(val: string) => updateData('leadership', 'organist', val)} />
+          <ModernInput label="Chorister" placeholder="Brother Wilson" value={agenda.data.leadership.chorister} onChange={(val: string) => updateData('leadership', 'chorister', val)} />
         </div>
       </Section>
 
       <Section title="Sacred Program" icon={Music}>
         <div className="space-y-6">
-          <ModernInput label="Opening Hymn" placeholder="Hymn # and Title" icon={Sparkles} />
-          <ModernInput label="Sacrament Hymn" placeholder="Hymn # and Title" />
+          <div className="relative">
+            <ModernInput label="Opening Hymn" placeholder="Search Hymn..." icon={Sparkles} value={agenda.data.program.openingHymn} onChange={(val: string) => { updateData('program', 'openingHymn', val); searchHymns(val, 'openingHymn'); }} />
+            {activeSearchField === 'openingHymn' && hymnSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                {hymnSuggestions.map((h: any) => (
+                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'openingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
+                    <span>{h.title}</span>
+                    <span className="text-secondary font-black">#{h.number}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <ModernInput label="Sacrament Hymn" placeholder="Search Hymn..." value={agenda.data.program.sacramentHymn} onChange={(val: string) => { updateData('program', 'sacramentHymn', val); searchHymns(val, 'sacramentHymn'); }} />
+            {activeSearchField === 'sacramentHymn' && hymnSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                {hymnSuggestions.map((h: any) => (
+                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'sacramentHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
+                    <span>{h.title}</span>
+                    <span className="text-secondary font-black">#{h.number}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="bg-secondary/5 p-6 rounded-3xl border border-secondary/20 border-dashed">
             <button className="flex items-center gap-2 text-secondary font-bold w-full justify-center">
               <Plus className="h-5 w-5" />
               Add Program Item (Talk, Musical Number)
             </button>
           </div>
-          <ModernInput label="Closing Hymn" placeholder="Hymn # and Title" />
+
+          <div className="relative">
+            <ModernInput label="Closing Hymn" placeholder="Search Hymn..." value={agenda.data.program.closingHymn} onChange={(val: string) => { updateData('program', 'closingHymn', val); searchHymns(val, 'closingHymn'); }} />
+            {activeSearchField === 'closingHymn' && hymnSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                {hymnSuggestions.map((h: any) => (
+                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'closingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
+                    <span>{h.title}</span>
+                    <span className="text-secondary font-black">#{h.number}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </Section>
     </motion.div>
   );
 }
 
-function SecondHourFlow() {
+function SecondHourFlow({ agenda, updateClass }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
       <Section title="Class Coordination" icon={Book}>
         <div className="space-y-6">
-          <div className="bg-white p-8 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-outline-variant/10">
-              <div className="bg-amber-100 p-2 rounded-xl text-amber-600"><Sparkles className="h-4 w-4" /></div>
-              <h4 className="font-bold text-primary">Adult Gospel Doctrine</h4>
+          {agenda.data.classes.map((cls: any, i: number) => (
+            <div key={i} className="bg-white p-8 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-outline-variant/10">
+                <div className="bg-amber-100 p-2 rounded-xl text-amber-600"><Sparkles className="h-4 w-4" /></div>
+                <h4 className="font-bold text-primary">{cls.name}</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ModernInput label="Teacher" placeholder="Instructor Name" value={cls.teacher} onChange={(val: string) => updateClass(i, 'teacher', val)} />
+                <ModernInput label="Topic" placeholder="Lesson Topic" value={cls.topic} onChange={(val: string) => updateClass(i, 'topic', val)} />
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ModernInput label="Teacher" placeholder="Sister Adams" />
-              <ModernInput label="Topic" placeholder="Mosiah 1-3" />
-            </div>
-          </div>
+          ))}
         </div>
       </Section>
     </motion.div>
@@ -159,7 +348,7 @@ function Section({ title, icon: Icon, children }: any) {
   );
 }
 
-function ModernInput({ label, placeholder, icon: Icon }: any) {
+function ModernInput({ label, placeholder, icon: Icon, value, onChange }: any) {
   return (
     <div className="space-y-2.5">
       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-1">
@@ -168,6 +357,8 @@ function ModernInput({ label, placeholder, icon: Icon }: any) {
       <div className="relative group">
         <input
           type="text"
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className="w-full bg-surface border border-outline-variant/40 px-6 py-4 rounded-2xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary placeholder:text-on-surface-variant/50"
         />

@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { LibraryList } from '../../components/pages/LibraryList';
+
+const collection = Astro.url.searchParams.get('collection');
+const title = Astro.url.searchParams.get('title');
+---
+
+<Layout title={title || "Sacred Library"}>
+  {collection ? (
+    <LibraryList client:load collection={collection} title={title} />
+  ) : (
+    <div class="flex items-center justify-center min-h-[60vh] text-on-surface-variant font-bold">
+      Category Not Found
+    </div>
+  )}
+</Layout>

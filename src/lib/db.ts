@@ -1,7 +1,7 @@
 import { Client, Databases, ID, Query } from "node-appwrite";
 import { createAdminClient } from "./appwrite";
 
-const DATABASE_ID = process.env.APPWRITE_DATABASE_ID!;
+const DATABASE_ID = import.meta.env.APPWRITE_DATABASE_ID || import.meta.env.PUBLIC_APPWRITE_DATABASE_ID;
 
 function createTable<T>(tableId: string) {
   return {

@@ -1,8 +1,33 @@
 import { motion } from "framer-motion";
-import { User, Mail, Shield, Bell, LogOut, ChevronRight, Sparkles, Camera, MapPin, Calendar, Clock } from "lucide-react";
+import { User, Mail, Shield, Bell, LogOut, ChevronRight, Sparkles, Camera, MapPin, Calendar, Clock, Loader2 } from "lucide-react";
 import { actions } from "astro:actions";
+import { useEffect, useState } from "react";
 
 export function Profile() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data } = await actions.getMe();
+      if (data?.success) {
+        setUser(data.user);
+      } else {
+        window.location.href = "/login";
+      }
+      setLoading(false);
+    }
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const handleLogout = async () => {
     await actions.logout();
     localStorage.removeItem("isLoggedIn");
@@ -29,8 +54,12 @@ export function Profile() {
                 <Sparkles className="h-3 w-3" />
                 Active Calling
               </div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tighter">Bishop David Smith</h1>
-              <p className="text-blue-100/80 text-xl font-medium italic">Oak Hills 4th Ward • Stake of Zion</p>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tighter">
+                {user?.name || "Church Member"}
+              </h1>
+              <p className="text-blue-100/80 text-xl font-medium italic">
+                {user?.email}
+              </p>
             </div>
             
             <div className="flex flex-wrap justify-center md:justify-start gap-3">
@@ -54,10 +83,10 @@ export function Profile() {
           <section className="bg-surface-container-lowest p-8 rounded-[2.5rem] border border-outline-variant/30 shadow-xl shadow-slate-200/40 space-y-8">
             <h2 className="text-2xl font-black text-primary tracking-tight">Security & Access</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ProfileCard icon={Mail} label="Contact Email" value="bishop.smith@ward.org" />
-              <ProfileCard icon={Shield} label="Access Level" value="Stake Administrator" />
-              <ProfileCard icon={Clock} label="Session Expiry" value="In 4 Hours" />
-              <ProfileCard icon={Bell} label="Notification Mode" value="Critical Alerts Only" />
+              <ProfileCard icon={Mail} label="Contact Email" value={user?.email} />
+              <ProfileCard icon={Shield} label="Access Level" value="Organization Leader" />
+              <ProfileCard icon={Clock} label="User ID" value={user?.$id} />
+              <ProfileCard icon={Bell} label="Status" value={user?.status ? "Active" : "Pending"} />
             </div>
           </section>
 

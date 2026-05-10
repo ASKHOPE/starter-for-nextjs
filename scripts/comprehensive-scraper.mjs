@@ -217,19 +217,12 @@ async function main() {
     const browser = await chromium.launch();
     
     // 1. General Conference
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2026/04?lang=eng', 'general_conference_talks', { conference: 'April 2026' });
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/general-conference/2025/04?lang=eng', 'general_conference_talks', { conference: 'April 2025' });
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/come-follow-me-for-home-and-church-old-testament-2026?lang=eng', 'come_follow_me');
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/study/manual/gospel-principles?lang=eng', 'gospel_principles');
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=eng', 'hymns', { isNumbered: true, shouldScroll: true });
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/childrens-songbook?lang=eng', 'childrens_songbook', { isNumbered: true, shouldScroll: true });
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns-for-home-and-church?lang=eng', 'new_hymns', { isNumbered: true, shouldScroll: true });
-    // await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/youth-music?lang=eng', 'youth_music', { shouldScroll: true });
+    await scrapeCollection(browser, 'https://www.churchofjesuschrist.org/media/music/collections/hymns?lang=eng', 'hymns', { isNumbered: true, shouldScroll: false });
 
     await browser.close();
 
     if (!fs.existsSync(path.dirname(DATA_FILE))) fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-    // fs.writeFileSync(DATA_FILE, JSON.stringify(libraryData, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(libraryData, null, 2));
     await syncToAppwrite();
 }
 

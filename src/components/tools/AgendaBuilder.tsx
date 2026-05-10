@@ -1,13 +1,25 @@
-import { motion } from "framer-motion";
-import { Plus, Search, Calendar, ChevronRight, Clock, FileText } from "lucide-react";
-
-const agendas = [
-  { id: 1, title: "Sacrament Meeting", date: "May 17, 2026", status: "Draft" },
-  { id: 2, title: "Stake Conference", date: "June 24, 2026", status: "Planned" },
-  { id: 3, title: "Youth Activity", date: "May 20, 2026", status: "Draft" },
-];
+import { Plus, Search, Calendar, ChevronRight, Clock, FileText, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { actions } from "astro:actions";
 
 export function AgendaBuilder() {
+  const [agendas, setAgendas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await actions.getAgendas();
+      if (data?.success) {
+        setAgendas(data.agendas);
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+  }
   return (
     <div className="space-y-8 pb-32">
       <div className="flex items-center justify-between">
@@ -26,12 +38,10 @@ export function AgendaBuilder() {
       </div>
 
       <div className="space-y-4">
-        {agendas.map((agenda, i) => (
-          <motion.div
-            key={agenda.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+        {agendas.map((item, i) => (
+          <a
+            key={item.$id}
+            href={`/plan/sunday?id=${item.$id}`}
             className="bg-surface-container-lowest border border-outline-variant/20 p-5 rounded-3xl flex items-center justify-between group cursor-pointer hover:shadow-md transition-all"
           >
             <div className="flex items-center gap-4">
@@ -39,15 +49,15 @@ export function AgendaBuilder() {
                 <FileText className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-bold text-primary">{agenda.title}</h3>
+                <h3 className="font-bold text-primary">{item.title}</h3>
                 <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {agenda.date}</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {agenda.status}</span>
+                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(item.date).toLocaleDateString()}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Draft</span>
                 </div>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-outline group-hover:translate-x-1 transition-transform" />
-          </motion.div>
+          </a>
         ))}
       </div>
     </div>

@@ -8,15 +8,17 @@ const resources = [
     icon: MessageSquare,
     color: "bg-blue-600",
     lightBg: "bg-blue-50",
-    count: "24 Sessions",
+    count: "April 2026",
+    collection: "general_conference_talks"
   },
   {
-    title: "Music Library",
+    title: "Hymns & Music",
     description: "Hymns, Children's Songbook, and Youth Music.",
     icon: Music,
     color: "bg-emerald-600",
     lightBg: "bg-emerald-50",
     count: "500+ Songs",
+    collection: "hymns"
   },
   {
     title: "Curriculum",
@@ -24,7 +26,8 @@ const resources = [
     icon: Book,
     color: "bg-amber-600",
     lightBg: "bg-amber-50",
-    count: "12 Manuals",
+    count: "Manuals",
+    collection: "come_follow_me"
   },
   {
     title: "Scriptures",
@@ -33,6 +36,7 @@ const resources = [
     color: "bg-indigo-600",
     lightBg: "bg-indigo-50",
     count: "4 Volumes",
+    collection: "scriptures"
   },
 ];
 
@@ -92,8 +96,9 @@ export function ResourcesHub() {
       {/* Categories Grid - Responsive Columns */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {resources.map((item, i) => (
-          <motion.div
+          <motion.a
             key={item.title}
+            href={`/resources/list?collection=${item.collection}&title=${encodeURIComponent(item.title)}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
@@ -114,7 +119,7 @@ export function ResourcesHub() {
                 <ChevronRight className="h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </div>
-          </motion.div>
+          </motion.a>
         ))}
       </section>
     </div>

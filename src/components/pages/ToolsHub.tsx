@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Wrench, Calculator, Settings, UserCheck, ShieldCheck, Database, LayoutTemplate, Sparkles, ArrowRight, RefreshCw } from "lucide-react";
+import { actions } from "astro:actions";
 
 const tools = [
   {
@@ -96,7 +97,15 @@ export function ToolsHub() {
             <p className="text-slate-400 text-lg leading-relaxed max-w-md font-medium">
               Refresh the sacred library, update hymn numbers, and sync the latest General Conference talks from the central repository.
             </p>
-            <button className="bg-white text-slate-900 px-10 py-4 rounded-2xl font-black shadow-xl shadow-white/10 active:scale-95 transition-transform flex items-center gap-3">
+            <button 
+              onClick={async () => {
+                const { data } = await actions.syncData();
+                if (data?.success) {
+                  alert(data.message);
+                }
+              }}
+              className="bg-white text-slate-900 px-10 py-4 rounded-2xl font-black shadow-xl shadow-white/10 active:scale-95 transition-transform flex items-center gap-3"
+            >
               Sync All Data
             </button>
           </div>

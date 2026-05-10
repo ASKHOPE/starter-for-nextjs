@@ -1,7 +1,40 @@
-import { Search, Church, Users, Edit, UserPlus, StickyNote, Ellipsis, BookOpenText, ArrowRight } from "lucide-react";
+import { Search, Church, Users, Edit, UserPlus, StickyNote, Ellipsis, ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { actions } from "astro:actions";
 
 export function Dashboard() {
+  const [agendas, setAgendas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    async function loadAgendas() {
+      const { data } = await actions.getAgendas();
+      if (data?.success) {
+        setAgendas(data.agendas);
+      }
+      setLoading(false);
+    }
+    loadAgendas();
+  }, []);
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.length < 3) {
+      setSearchResults(null);
+      return;
+    }
+    setIsSearching(true);
+    const { data } = await actions.globalSearch({ query });
+    if (data?.success) {
+      setSearchResults(data);
+    }
+    setIsSearching(false);
+  };
+
   return (
     <div className="space-y-12 pb-24">
       {/* Search Section - Responsive Width */}
@@ -10,10 +43,51 @@ export function Dashboard() {
           <Search className="text-outline h-5 w-5" />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search agendas, members, or lessons..."
             className="font-medium text-body-lg placeholder:text-on-surface-variant ml-4 w-full border-none bg-transparent outline-none focus:ring-0"
           />
+          {isSearching && <Loader2 className="h-5 w-5 animate-spin text-secondary ml-2" />}
         </div>
+
+        {/* Search Results Dropdown */}
+        {searchResults && (
+          <div className="absolute z-50 w-full mt-4 bg-white rounded-[2rem] border border-outline-variant/30 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-4">
+            <div className="p-6 space-y-6">
+              {searchResults.agendas.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary">Agendas</h4>
+                  {searchResults.agendas.map((a: any) => (
+                    <a key={a.$id} href={`/plan/sunday?id=${a.$id}`} className="block p-3 rounded-xl hover:bg-slate-50 font-bold text-primary">{a.title}</a>
+                  ))}
+                </div>
+              )}
+              {searchResults.hymns.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Hymns</h4>
+                  {searchResults.hymns.map((h: any) => (
+                    <div key={h.$id} className="p-3 rounded-xl hover:bg-slate-50 font-bold text-primary flex justify-between">
+                      <span>{h.title}</span>
+                      <span className="text-emerald-600">#{h.number}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {searchResults.talks.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-600">Conference Talks</h4>
+                  {searchResults.talks.map((t: any) => (
+                    <a key={t.$id} href={t.url} target="_blank" className="block p-3 rounded-xl hover:bg-slate-50 font-bold text-primary">{t.title}</a>
+                  ))}
+                </div>
+              )}
+              {searchResults.agendas.length === 0 && searchResults.hymns.length === 0 && searchResults.talks.length === 0 && (
+                <p className="text-center text-on-surface-variant py-4 font-medium">No results found for "{searchQuery}"</p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Hero Section: Today's Agenda */}
@@ -23,18 +97,22 @@ export function Dashboard() {
         className="bg-primary overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl shadow-slate-900/30 relative"
       >
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
+            <div className="space-y-6">
             <div className="space-y-2">
-              <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em]">Live Session</span>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">Sunday Sacrament Service</h2>
+              <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em]">Next Meeting</span>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+                {agendas[0]?.title || "No Upcoming Services"}
+              </h2>
             </div>
             <p className="text-blue-100/80 text-lg max-w-md font-medium leading-relaxed">
-              Managing Oak Hills 4th Ward. Join the live stream or edit the program in real-time.
+              {agendas[0] 
+                ? `Managing ${agendas[0].title}. Date: ${new Date(agendas[0].date).toLocaleDateString()}.`
+                : "Start by creating your first Sunday service agenda."}
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <a href="/plan/sunday" className="bg-white text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform">
+              <a href={agendas[0] ? `/plan/sunday?id=${agendas[0].$id}` : "/plan/sunday"} className="bg-white text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform">
                 <Edit className="h-5 w-5" />
-                Edit Program
+                {agendas[0] ? "Edit Program" : "Create Agenda"}
               </a>
               <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-white/20 transition-all">
                 <Users className="h-5 w-5" />
@@ -76,30 +154,39 @@ export function Dashboard() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { title: "Sacrament Meeting", time: "10:00 AM", location: "Chapel", icon: Church, color: "text-blue-600", bg: "bg-blue-50" },
-              { title: "Sunday School", time: "11:15 AM", location: "Room 204", icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-              { title: "Priesthood / RS", time: "12:15 PM", location: "Main Hall", icon: BookOpenText, color: "text-emerald-600", bg: "bg-emerald-50" },
-              { title: "Youth Mtg", time: "12:15 PM", location: "Room 102", icon: UserPlus, color: "text-amber-600", bg: "bg-amber-50" },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/30 flex items-start gap-5 hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-pointer group"
-              >
-                <div className={`${item.bg} ${item.color} p-4 rounded-2xl group-hover:scale-110 transition-transform`}>
-                  <item.icon className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-primary">{item.title}</h3>
+            {loading ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-12 bg-surface-container-low rounded-[2rem] border border-outline-variant/30">
+                <Loader2 className="h-8 w-8 animate-spin text-secondary mb-4" />
+                <p className="text-on-surface-variant font-bold">Synchronizing your agendas...</p>
+              </div>
+            ) : agendas.length > 0 ? (
+              agendas.map((item, i) => (
+                <motion.a
+                  href={`/plan/sunday?id=${item.$id}`}
+                  key={item.$id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/30 flex items-start gap-5 hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-pointer group"
+                >
+                  <div className={`bg-blue-50 text-blue-600 p-4 rounded-2xl group-hover:scale-110 transition-transform`}>
+                    <Church className="h-6 w-6" />
                   </div>
-                  <p className="text-xs text-on-surface-variant font-medium">{item.time} • {item.location}</p>
-                </div>
-              </motion.div>
-            ))}
+                  <div>
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-bold text-primary">{item.title}</h3>
+                    </div>
+                    <p className="text-xs text-on-surface-variant font-medium">
+                      {new Date(item.date).toLocaleDateString()} • {item.type}
+                    </p>
+                  </div>
+                </motion.a>
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center bg-surface-container-low rounded-[2rem] border border-outline-variant/30">
+                <p className="text-on-surface-variant font-medium">No agendas found. Create one to get started!</p>
+              </div>
+            )}
           </div>
         </section>
 
