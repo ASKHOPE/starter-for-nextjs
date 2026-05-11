@@ -103,6 +103,7 @@ export function PreviewAgenda({ agendaId }: { agendaId: string }) {
             <ProgramLine label="Conducting" value={agenda.data.leadership.conducting} />
             <ProgramLine label="Organist" value={agenda.data.leadership.organist} />
             <ProgramLine label="Chorister" value={agenda.data.leadership.chorister} />
+            <ProgramLine label="Acknowledging" value={agenda.data.leadership.acknowledgeLeader} />
           </div>
 
           {/* Announcements Section */}
@@ -115,26 +116,15 @@ export function PreviewAgenda({ agendaId }: { agendaId: string }) {
 
           {/* Program Section */}
           <div className="space-y-6">
-            <ProgramLine label="Opening Hymn" value={agenda.data.program.openingHymn} centered />
-            <ProgramLine label="Invocation" value="By Invitation" centered />
-            <ProgramLine label="Ward Business" value="As Directed" centered />
-            <ProgramLine label="Sacrament Hymn" value={agenda.data.program.sacramentHymn} centered />
-            
-            <div className="py-4 text-center italic text-slate-400 text-sm">
-              The Administration of the Sacrament
-            </div>
-
-            {/* Dynamic Items */}
-            {agenda.data.program.items?.map((item: any, i: number) => (
-              <ProgramLine key={i} label={item.type} value={item.label} centered />
+            {agenda.data.program.blocks?.map((block: any, i: number) => (
+              block.type === 'sacrament' ? (
+                <div key={i} className="py-4 text-center italic text-slate-400 text-sm">
+                  The Administration of the Sacrament
+                </div>
+              ) : (
+                <ProgramLine key={i} label={block.label} value={block.value} centered />
+              )
             ))}
-            {/* Speakers */}
-            <ProgramLine label="1st Speaker" value={agenda.data.program.speaker1} centered />
-            <ProgramLine label="2nd Speaker" value={agenda.data.program.speaker2} centered />
-            <ProgramLine label="3rd Speaker" value={agenda.data.program.speaker3} centered />
-
-            <ProgramLine label="Closing Hymn" value={agenda.data.program.closingHymn} centered />
-            <ProgramLine label="Benediction" value="By Invitation" centered />
           </div>
 
           {/* Second Hour Section */}

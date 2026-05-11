@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Church, Music, Users, Book, Save, Clock, MapPin, Sparkles, Loader2, Calendar, X, MessageSquare } from "lucide-react";
+import { Church, Music, Users, Book, Save, Clock, MapPin, Sparkles, Loader2, Calendar, X, MessageSquare, ChevronLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { actions } from "astro:actions";
 
@@ -25,16 +25,21 @@ export function SundayArchitect() {
       type: "sacrament" as const,
       status: "draft" as const,
       data: {
-        leadership: { presiding: "", conducting: "", organist: "", chorister: "" },
+        leadership: { presiding: "", conducting: "", organist: "", chorister: "", acknowledgeLeader: "" },
         program: { 
-          openingHymn: "", 
-          sacramentHymn: "", 
-          intermediateHymn: "", 
-          closingHymn: "",
-          speaker1: "",
-          speaker2: "",
-          speaker3: "",
-          announcements: ""
+          announcements: "",
+          blocks: [
+            { id: 'openingHymn', type: 'hymn', label: 'Opening Hymn', value: '' },
+            { id: 'invocation', type: 'prayer', label: 'Invocation', value: 'By Invitation' },
+            { id: 'business', type: 'business', label: 'Ward Business', value: 'As Directed' },
+            { id: 'sacramentHymn', type: 'hymn', label: 'Sacrament Hymn', value: '' },
+            { id: 'sacrament', type: 'sacrament', label: 'Administration of the Sacrament', value: '' },
+            { id: 'speaker1', type: 'speaker', label: '1st Speaker', value: '' },
+            { id: 'speaker2', type: 'speaker', label: '2nd Speaker', value: '' },
+            { id: 'speaker3', type: 'speaker', label: '3rd Speaker', value: '' },
+            { id: 'closingHymn', type: 'hymn', label: 'Closing Hymn', value: '' },
+            { id: 'benediction', type: 'prayer', label: 'Benediction', value: 'By Invitation' }
+          ]
         },
         secondHour: {
           block1: [
@@ -54,9 +59,11 @@ export function SundayArchitect() {
           { name: "Relief Society / Elders Quorum", teacher: "", topic: "" },
           { name: "Sunday School", teacher: "", topic: "" }
         ],
-        attendance: { beforeSacrament: "", afterSacrament: "" }
+        attendance: { beforeSacrament: "", afterSacrament: "" },
+        timing: { start: "10:00 AM", end: "12:00 PM" }
       }
     };
+
   });
 
   useEffect(() => {
@@ -100,12 +107,47 @@ export function SundayArchitect() {
           }
         }
 
+        // 0. Ensure 'blocks' exists
+        if (!migratedData.program.blocks) {
+          migratedData.program.blocks = [
+            { id: 'openingHymn', type: 'hymn', label: 'Opening Hymn', value: migratedData.program.openingHymn || '' },
+            { id: 'invocation', type: 'prayer', label: 'Invocation', value: 'By Invitation' },
+            { id: 'business', type: 'business', label: 'Ward Business', value: 'As Directed' },
+            { id: 'sacramentHymn', type: 'hymn', label: 'Sacrament Hymn', value: migratedData.program.sacramentHymn || '' },
+            { id: 'sacrament', type: 'sacrament', label: 'Administration of the Sacrament', value: '' }
+          ];
+          
+          if (migratedData.program.items && Array.isArray(migratedData.program.items)) {
+             migratedData.program.items.forEach((item: any, i: number) => {
+               migratedData.program.blocks.push({ id: `custom_${i}`, type: 'custom', label: item.type, value: item.label });
+             });
+          }
+
+          if (migratedData.program.intermediateHymn) {
+             migratedData.program.blocks.push({ id: 'intermediateHymn', type: 'hymn', label: 'Intermediate Hymn / Special Music', value: migratedData.program.intermediateHymn });
+          }
+
+          migratedData.program.blocks.push(
+            { id: 'speaker1', type: 'speaker', label: '1st Speaker', value: migratedData.program.speaker1 || '' },
+            { id: 'speaker2', type: 'speaker', label: '2nd Speaker', value: migratedData.program.speaker2 || '' },
+            { id: 'speaker3', type: 'speaker', label: '3rd Speaker', value: migratedData.program.speaker3 || '' },
+            { id: 'closingHymn', type: 'hymn', label: 'Closing Hymn', value: migratedData.program.closingHymn || '' },
+            { id: 'benediction', type: 'prayer', label: 'Benediction', value: 'By Invitation' }
+          );
+        }
+
         // 3. Ensure 'attendance' exists
         if (!migratedData.attendance) {
           migratedData.attendance = { beforeSacrament: "", afterSacrament: "" };
         }
 
+        // 4. Ensure 'timing' exists
+        if (!migratedData.timing) {
+          migratedData.timing = { start: "10:00 AM", end: "12:00 PM" };
+        }
+
         setAgenda({
+
           id: found.$id,
           title: found.title,
           date: found.date,
@@ -176,10 +218,102 @@ export function SundayArchitect() {
 
   const selectHymn = (hymn: any, section: string, field: string) => {
     const value = `${hymn.number ? `#${hymn.number} ` : ""}${hymn.title}`;
-    updateData(section, field, value);
+    if (section === 'block') {
+      updateBlock(field, value);
+    } else {
+      updateData(section, field, value);
+    }
     setHymnSuggestions([]);
     setActiveSearchField(null);
   };
+
+  const updateBlock = (id: string, value: string) => {
+    setAgenda(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        program: {
+          ...prev.data.program,
+          blocks: prev.data.program.blocks.map((b: any) => b.id === id ? { ...b, value } : b)
+        }
+      }
+    }));
+  };
+
+  const moveBlock = (index: number, direction: 'up' | 'down') => {
+    setAgenda(prev => {
+      const newBlocks = [...prev.data.program.blocks];
+      if (direction === 'up' && index > 0) {
+        [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
+      } else if (direction === 'down' && index < newBlocks.length - 1) {
+        [newBlocks[index + 1], newBlocks[index]] = [newBlocks[index], newBlocks[index + 1]];
+      }
+      return { ...prev, data: { ...prev.data, program: { ...prev.data.program, blocks: newBlocks } } };
+    });
+  };
+
+  const removeBlock = (index: number) => {
+    setAgenda(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        program: {
+          ...prev.data.program,
+          blocks: prev.data.program.blocks.filter((_: any, i: number) => i !== index)
+        }
+      }
+    }));
+  };
+
+  const addBlock = (type: string, label: string) => {
+    setAgenda(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        program: {
+          ...prev.data.program,
+          blocks: [
+            ...prev.data.program.blocks,
+            { id: Math.random().toString(36).substring(7), type, label, value: '' }
+          ]
+        }
+      }
+    }));
+  };
+
+  const applyTemplate = (templateName: string) => {
+    let blocks: any[] = [];
+    if (templateName === 'standard') {
+      blocks = [
+        { id: 'openingHymn', type: 'hymn', label: 'Opening Hymn', value: '' },
+        { id: 'invocation', type: 'prayer', label: 'Invocation', value: 'By Invitation' },
+        { id: 'business', type: 'business', label: 'Ward Business', value: 'As Directed' },
+        { id: 'sacramentHymn', type: 'hymn', label: 'Sacrament Hymn', value: '' },
+        { id: 'sacrament', type: 'sacrament', label: 'Administration of the Sacrament', value: '' },
+        { id: 'speaker1', type: 'speaker', label: '1st Speaker', value: '' },
+        { id: 'speaker2', type: 'speaker', label: '2nd Speaker', value: '' },
+        { id: 'speaker3', type: 'speaker', label: '3rd Speaker', value: '' },
+        { id: 'closingHymn', type: 'hymn', label: 'Closing Hymn', value: '' },
+        { id: 'benediction', type: 'prayer', label: 'Benediction', value: 'By Invitation' }
+      ];
+    } else if (templateName === 'fast') {
+      blocks = [
+        { id: 'openingHymn', type: 'hymn', label: 'Opening Hymn', value: '' },
+        { id: 'invocation', type: 'prayer', label: 'Invocation', value: 'By Invitation' },
+        { id: 'business', type: 'business', label: 'Ward Business', value: 'As Directed' },
+        { id: 'sacramentHymn', type: 'hymn', label: 'Sacrament Hymn', value: '' },
+        { id: 'sacrament', type: 'sacrament', label: 'Administration of the Sacrament', value: '' },
+        { id: 'testimony', type: 'custom', label: 'Bearing of Testimonies', value: 'Members of the Ward' },
+        { id: 'closingHymn', type: 'hymn', label: 'Closing Hymn', value: '' },
+        { id: 'benediction', type: 'prayer', label: 'Benediction', value: 'By Invitation' }
+      ];
+    }
+    setAgenda(prev => ({
+      ...prev,
+      data: { ...prev.data, program: { ...prev.data.program, blocks } }
+    }));
+  };
+
 
   const handleSave = async () => {
     setSaving(true);
@@ -274,13 +408,18 @@ export function SundayArchitect() {
             <SacramentFlow 
               agenda={agenda} 
               updateData={updateData} 
+              updateBlock={updateBlock}
+              moveBlock={moveBlock}
+              removeBlock={removeBlock}
+              addBlock={addBlock}
+              applyTemplate={applyTemplate}
               searchHymns={searchHymns} 
-              hymnSuggestions={hymnSuggestions}
-              activeSearchField={activeSearchField}
-              selectHymn={selectHymn}
-              activeBook={activeBook}
-              setActiveBook={setActiveBook}
-              setActiveSearchField={setActiveSearchField}
+              hymnSuggestions={hymnSuggestions} 
+              activeSearchField={activeSearchField} 
+              selectHymn={selectHymn} 
+              activeBook={activeBook} 
+              setActiveBook={setActiveBook} 
+              setActiveSearchField={setActiveSearchField} 
             />
           ) : (
             <SecondHourFlow agenda={agenda} updateClass={updateClass} />
@@ -340,15 +479,29 @@ function ChurchIcon(props: any) {
   );
 }
 
-function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn, activeBook, setActiveBook, setActiveSearchField }: any) {
+function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn, activeBook, setActiveBook, setActiveSearchField, updateBlock, moveBlock, removeBlock, addBlock, applyTemplate }: any) {
+  const [newCustomLabel, setNewCustomLabel] = useState("");
+
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+      <div className="flex justify-between items-center bg-surface-container-low p-4 rounded-2xl border border-outline-variant/30">
+        <div>
+          <h3 className="font-black text-primary text-sm uppercase tracking-widest">Template Engine</h3>
+          <p className="text-xs text-on-surface-variant">Switch program layout</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => applyTemplate('standard')} className="px-4 py-2 bg-white rounded-lg text-xs font-bold text-primary border border-outline-variant/30 hover:bg-surface-variant">Standard</button>
+          <button onClick={() => applyTemplate('fast')} className="px-4 py-2 bg-white rounded-lg text-xs font-bold text-primary border border-outline-variant/30 hover:bg-surface-variant">Fast Sunday</button>
+        </div>
+      </div>
+
       <Section title="Leadership & Music" icon={Users}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ModernInput label="Presiding" placeholder="Bishop Smith" value={agenda.data.leadership.presiding} onChange={(val: string) => updateData('leadership', 'presiding', val)} />
           <ModernInput label="Conducting" placeholder="Brother Jones" value={agenda.data.leadership.conducting} onChange={(val: string) => updateData('leadership', 'conducting', val)} />
           <ModernInput label="Organist" placeholder="Sister Miller" value={agenda.data.leadership.organist} onChange={(val: string) => updateData('leadership', 'organist', val)} />
           <ModernInput label="Chorister" placeholder="Brother Wilson" value={agenda.data.leadership.chorister} onChange={(val: string) => updateData('leadership', 'chorister', val)} />
+          <ModernInput label="Acknowledge Leader" placeholder="Visiting Authority (Optional)" value={agenda.data.leadership.acknowledgeLeader} onChange={(val: string) => updateData('leadership', 'acknowledgeLeader', val)} />
         </div>
       </Section>
 
@@ -371,181 +524,89 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
 
       <Section title="Sacred Program" icon={Music}>
         <div className="space-y-6">
-          <div className="relative">
-            <ModernInput 
-              label="Opening Hymn" 
-              placeholder={`Search...`} 
-              icon={Sparkles} 
-              value={agenda.data.program.openingHymn} 
-              onFocus={() => setActiveSearchField('openingHymn')}
-              onChange={(val: string) => { updateData('program', 'openingHymn', val); searchHymns(val, 'openingHymn'); }} 
-            />
-            {activeSearchField === 'openingHymn' && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
-                <div className="flex items-center justify-between p-3 bg-primary text-white">
-                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
-                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
-                </div>
-                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
-                  {[
-                    { id: 'hymns', label: 'Hymns' },
-                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
-                    { id: 'new_hymns', label: 'New Hymns' },
-                    { id: 'youth_music', label: 'Music' }
-                  ].map((book) => (
-                    <button
-                      key={book.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
-                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
-                      }`}
-                    >
-                      {book.label}
-                    </button>
-                  ))}
-                </div>
-                {hymnSuggestions.map((h: any) => (
-                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'openingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
-                    <span>{h.title}</span>
-                    <span className="text-secondary font-black">#{h.number}</span>
-                  </button>
-                ))}
+          {agenda.data.program.blocks?.map((block: any, i: number) => (
+            <div key={block.id} className="relative flex items-end gap-3 bg-white p-3 rounded-2xl border border-outline-variant/20 shadow-sm">
+              <div className="flex-1">
+                {block.type === 'hymn' ? (
+                  <div className="relative">
+                    <ModernInput 
+                      label={block.label} 
+                      placeholder="Search..." 
+                      icon={Sparkles} 
+                      value={block.value} 
+                      onFocus={() => setActiveSearchField(block.id)}
+                      onChange={(val: string) => { updateBlock(block.id, val); searchHymns(val, block.id); }} 
+                    />
+                    {activeSearchField === block.id && (
+                      <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                        <div className="flex items-center justify-between p-3 bg-primary text-white">
+                          <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
+                          <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
+                        </div>
+                        <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
+                          {[
+                            { id: 'hymns', label: 'Hymns' },
+                            { id: 'childrens_songbook', label: 'Children\'s Hymns' },
+                            { id: 'new_hymns', label: 'New Hymns' },
+                            { id: 'youth_music', label: 'Music' }
+                          ].map((book) => (
+                            <button
+                              key={book.id}
+                              onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
+                              className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                                activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
+                              }`}
+                            >
+                              {book.label}
+                            </button>
+                          ))}
+                        </div>
+                        {hymnSuggestions.map((h: any) => (
+                          <button key={h.$id} onClick={() => selectHymn(h, 'block', block.id)} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
+                            <span>{h.title}</span>
+                            <span className="text-secondary font-black">#{h.number}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : block.type === 'sacrament' ? (
+                  <div className="py-4 text-center italic text-on-surface-variant text-sm font-medium">
+                    The Administration of the Sacrament
+                  </div>
+                ) : (
+                  <ModernInput 
+                    label={block.label} 
+                    placeholder="Enter details..." 
+                    value={block.value} 
+                    onChange={(val: string) => updateBlock(block.id, val)} 
+                  />
+                )}
               </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <ModernInput 
-              label="Sacrament Hymn" 
-              placeholder={`Search...`} 
-              value={agenda.data.program.sacramentHymn} 
-              onFocus={() => setActiveSearchField('sacramentHymn')}
-              onChange={(val: string) => { updateData('program', 'sacramentHymn', val); searchHymns(val, 'sacramentHymn'); }} 
-            />
-            {activeSearchField === 'sacramentHymn' && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
-                <div className="flex items-center justify-between p-3 bg-primary text-white">
-                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
-                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
-                </div>
-                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
-                  {[
-                    { id: 'hymns', label: 'Hymns' },
-                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
-                    { id: 'new_hymns', label: 'New Hymns' },
-                    { id: 'youth_music', label: 'Music' }
-                  ].map((book) => (
-                    <button
-                      key={book.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
-                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
-                      }`}
-                    >
-                      {book.label}
-                    </button>
-                  ))}
-                </div>
-                {hymnSuggestions.map((h: any) => (
-                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'sacramentHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
-                    <span>{h.title}</span>
-                    <span className="text-secondary font-black">#{h.number}</span>
-                  </button>
-                ))}
+              <div className="flex flex-col gap-1 pb-1">
+                <button onClick={() => moveBlock(i, 'up')} disabled={i === 0} className="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded-md disabled:opacity-30"><ChevronLeft className="h-4 w-4 rotate-90" /></button>
+                <button onClick={() => removeBlock(i)} className="p-1.5 text-error hover:bg-error/10 rounded-md"><X className="h-4 w-4" /></button>
+                <button onClick={() => moveBlock(i, 'down')} disabled={i === agenda.data.program.blocks.length - 1} className="p-1.5 text-on-surface-variant hover:bg-surface-variant rounded-md disabled:opacity-30"><ChevronLeft className="h-4 w-4 -rotate-90" /></button>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
 
-          <div className="relative">
-            <ModernInput 
-              label="Intermediate Hymn / Special Music" 
-              placeholder={`Search...`} 
-              value={agenda.data.program.intermediateHymn} 
-              onFocus={() => setActiveSearchField('intermediateHymn')}
-              onChange={(val: string) => { updateData('program', 'intermediateHymn', val); searchHymns(val, 'intermediateHymn'); }} 
-            />
-            {activeSearchField === 'intermediateHymn' && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
-                <div className="flex items-center justify-between p-3 bg-primary text-white">
-                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
-                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
-                </div>
-                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
-                  {[
-                    { id: 'hymns', label: 'Hymns' },
-                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
-                    { id: 'new_hymns', label: 'New Hymns' },
-                    { id: 'youth_music', label: 'Music' }
-                  ].map((book) => (
-                    <button
-                      key={book.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
-                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
-                      }`}
-                    >
-                      {book.label}
-                    </button>
-                  ))}
-                </div>
-                {hymnSuggestions.map((h: any) => (
-                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'intermediateHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
-                    <span>{h.title}</span>
-                    <span className="text-secondary font-black">#{h.number}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <ModernInput 
-              label="Closing Hymn" 
-              placeholder={`Search...`} 
-              value={agenda.data.program.closingHymn} 
-              onFocus={() => setActiveSearchField('closingHymn')}
-              onChange={(val: string) => { updateData('program', 'closingHymn', val); searchHymns(val, 'closingHymn'); }} 
-            />
-            {activeSearchField === 'closingHymn' && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
-                <div className="flex items-center justify-between p-3 bg-primary text-white">
-                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
-                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
-                </div>
-                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
-                  {[
-                    { id: 'hymns', label: 'Hymns' },
-                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
-                    { id: 'new_hymns', label: 'New Hymns' },
-                    { id: 'youth_music', label: 'Music' }
-                  ].map((book) => (
-                    <button
-                      key={book.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
-                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
-                      }`}
-                    >
-                      {book.label}
-                    </button>
-                  ))}
-                </div>
-                {hymnSuggestions.map((h: any) => (
-                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'closingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
-                    <span>{h.title}</span>
-                    <span className="text-secondary font-black">#{h.number}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="pt-6 border-t border-outline-variant/10 space-y-6">
-            <h4 className="text-xs font-black uppercase tracking-widest text-primary/60">Speakers</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <ModernInput label="1st Speaker" placeholder="Youth / Guest" value={agenda.data.program.speaker1} onChange={(val: string) => updateData('program', 'speaker1', val)} />
-              <ModernInput label="2nd Speaker" placeholder="Guest / Musical Number" value={agenda.data.program.speaker2} onChange={(val: string) => updateData('program', 'speaker2', val)} />
-              <ModernInput label="3rd Speaker" placeholder="Bishopric / High Council" value={agenda.data.program.speaker3} onChange={(val: string) => updateData('program', 'speaker3', val)} />
+          <div className="pt-6 border-t border-outline-variant/10 space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-primary/60">Add Custom Item</h4>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="e.g. Youth Speaker, Special Musical Number" 
+                className="flex-1 bg-surface border border-outline-variant/40 px-4 py-2 rounded-xl text-sm outline-none focus:border-primary"
+                value={newCustomLabel}
+                onChange={(e) => setNewCustomLabel(e.target.value)}
+              />
+              <button 
+                onClick={() => { if (newCustomLabel) { addBlock('custom', newCustomLabel); setNewCustomLabel(''); } }}
+                className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md"
+              >
+                Add
+              </button>
             </div>
           </div>
         </div>
@@ -570,8 +631,35 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
               onChange={(val: string) => updateData('attendance', 'afterSacrament', val)} 
             />
           </div>
+          <div className="pt-4 border-t border-outline-variant/10 text-right">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-primary/60 mr-4">Total :</span>
+            <span className="text-2xl font-black text-primary">
+              {Math.max(
+                parseInt(agenda.data.attendance?.beforeSacrament || "0") || 0,
+                parseInt(agenda.data.attendance?.afterSacrament || "0") || 0
+              )}
+            </span>
+          </div>
         </div>
       </Section>
+
+      <Section title="Service Timing" icon={Clock}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ModernInput 
+            label="Start Service" 
+            placeholder="10:00 AM" 
+            value={agenda.data.timing?.start} 
+            onChange={(val: string) => updateData('timing', 'start', val)} 
+          />
+          <ModernInput 
+            label="End Service" 
+            placeholder="12:00 PM" 
+            value={agenda.data.timing?.end} 
+            onChange={(val: string) => updateData('timing', 'end', val)} 
+          />
+        </div>
+      </Section>
+
     </motion.div>
   );
 }

@@ -34,7 +34,12 @@ async function run() {
             }
             const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             
-            for (const book of data.books) {
+            const isDC = vol.slug === 'dc';
+            const booksToProcess = isDC 
+                ? [{ book: 'Doctrine and Covenants', chapters: data.sections.map((s: any) => ({ chapter: s.section, verses: s.verses })) }] 
+                : data.books;
+
+            for (const book of booksToProcess) {
                 const bookSlug = book.book.toLowerCase().replace(/\s+/g, '-');
                 console.log(`\n  Book: ${book.book}`);
                 
@@ -42,7 +47,7 @@ async function run() {
                     const chapterNum = chapter.chapter;
                     const verses = chapter.verses || [];
                     
-                    for (const v of verses) {
+                    const versePromises = verses.map((v: any) => {
                         const reference = `${book.book} ${chapterNum}:${v.verse}`;
                         const docId = `${vol.slug}_${bookSlug}_${chapterNum}_${v.verse}`
                             .toLowerCase()
@@ -51,31 +56,32 @@ async function run() {
 
                         const churchUrl = `https://www.churchofjesuschrist.org/study/scriptures/${vol.slug}/${bookSlug}/${chapterNum}?lang=eng&id=p${v.verse}#p${v.verse}`;
                         
-                        try {
-                            await databases.createDocument(
-                                DATABASE_ID,
-                                COLLECTION_ID,
-                                docId,
-                                {
-                                    title: reference,
-                                    book: book.book,
-                                    volume: vol.name,
-                                    chapter: chapterNum,
-                                    verse: v.verse,
-                                    content: v.text,
-                                    reference: reference,
-                                    url: churchUrl
-                                }
-                            );
+                        return databases.createDocument(
+                            DATABASE_ID,
+                            COLLECTION_ID,
+                            docId,
+                            {
+                                title: reference,
+                                book: book.book,
+                                volume: vol.name,
+                                chapter: chapterNum,
+                                verse: v.verse,
+                                content: v.text,
+                                reference: reference,
+                                url: churchUrl
+                            }
+                        ).then(() => {
                             process.stdout.write('.');
-                        } catch (e: any) {
+                        }).catch((e: any) => {
                             if (e.code === 409) {
                                 process.stdout.write('s');
                             } else {
                                 console.error(`\nError saving ${reference}:`, e.message);
                             }
-                        }
-                    }
+                        });
+                    });
+
+                    await Promise.allSettled(versePromises);
                 }
             }
         }
