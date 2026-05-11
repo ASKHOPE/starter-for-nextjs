@@ -3,7 +3,7 @@ import { ChevronLeft, Search, Loader2, ExternalLink, BookOpen, Music, MessageSqu
 import { useEffect, useState } from "react";
 import { actions } from "astro:actions";
 
-export function LibraryList({ collection, title }: { collection: string, title: string | null }) {
+export function LibraryList({ collection, title, volume }: { collection: string, title: string | null, volume?: string | null }) {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -11,12 +11,16 @@ export function LibraryList({ collection, title }: { collection: string, title: 
 
   useEffect(() => {
     load();
-  }, [collection]);
+  }, [collection, volume]);
 
   async function load(query = "") {
     setLoading(true);
     setError(null);
-    const { data } = await actions.getLibraryItems({ collection: collection as any, search: query });
+    const { data } = await actions.getLibraryItems({ 
+      collection: collection as any, 
+      search: query,
+      volume: volume || undefined
+    });
     if (data?.success) {
       setItems(data.items);
     } else {
@@ -44,7 +48,7 @@ export function LibraryList({ collection, title }: { collection: string, title: 
         </div>
         
         <div className="max-w-md w-full">
-          <div className="bg-surface-container-low flex items-center px-5 py-4 rounded-2xl border border-outline-variant/30">
+          <div className="bg-surface-container-low flex items-center px-5 py-4 rounded-2xl border border-outline-variant/30 shadow-sm focus-within:shadow-md transition-shadow">
             <Search className="h-5 w-5 text-outline" />
             <input 
               type="text" 
@@ -61,6 +65,8 @@ export function LibraryList({ collection, title }: { collection: string, title: 
           </div>
         </div>
       </div>
+
+
 
       {error ? (
         <div className="bg-red-50 border border-red-100 p-8 rounded-[2rem] text-center">
@@ -92,9 +98,19 @@ export function LibraryList({ collection, title }: { collection: string, title: 
                   <span className="bg-primary text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest">#{item.number}</span>
                 )}
               </div>
-              <h3 className="font-bold text-primary line-clamp-2 flex-1 mb-4">{item.title}</h3>
-              <div className="flex items-center gap-2 text-[10px] font-black text-secondary uppercase tracking-widest">
-                Read More <ExternalLink className="h-3 w-3" />
+              <h3 className="font-bold text-primary mb-2">{item.title}</h3>
+              {collection === 'scriptures' && item.content && (
+                <p className="text-sm text-on-surface-variant line-clamp-3 mb-4 italic leading-relaxed">
+                  "{item.content}"
+                </p>
+              )}
+              <div className="mt-auto flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[10px] font-black text-secondary uppercase tracking-widest">
+                  Read More <ExternalLink className="h-3 w-3" />
+                </div>
+                {item.book && (
+                  <span className="text-[10px] font-bold text-outline uppercase tracking-wider">{item.book}</span>
+                )}
               </div>
             </motion.a>
           ))}

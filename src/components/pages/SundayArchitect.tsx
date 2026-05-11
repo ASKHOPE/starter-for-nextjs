@@ -1,27 +1,62 @@
 import { motion } from "framer-motion";
-import { Church, Music, Users, Book, Save, Plus, Clock, MapPin, Sparkles, Loader2, Calendar } from "lucide-react";
+import { Church, Music, Users, Book, Save, Clock, MapPin, Sparkles, Loader2, Calendar, X, MessageSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { actions } from "astro:actions";
+
+const NEW_SCHEDULE_DATE = new Date("2026-09-06");
+
+const isNewSchedule = (dateStr: string) => {
+  return new Date(dateStr) >= NEW_SCHEDULE_DATE;
+};
 
 export function SundayArchitect() {
   const [activeTab, setActiveTab] = useState("sacrament");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   
-  const [agenda, setAgenda] = useState({
-    id: "",
-    title: "Sunday Sacrament Service",
-    date: new Date().toISOString().split('T')[0],
-    type: "sacrament" as const,
-    status: "draft" as const,
-    data: {
-      leadership: { presiding: "", conducting: "", organist: "", chorister: "" },
-      program: { openingHymn: "", sacramentHymn: "", closingHymn: "", items: [] as any[] },
-      classes: [
-        { name: "Adult Gospel Doctrine", teacher: "", topic: "" },
-        { name: "Youth Sunday School", teacher: "", topic: "" }
-      ]
-    }
+  const [agenda, setAgenda] = useState(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const isNew = isNewSchedule(today);
+    
+    return {
+      id: "",
+      title: "Sunday Sacrament Service",
+      date: today,
+      type: "sacrament" as const,
+      status: "draft" as const,
+      data: {
+        leadership: { presiding: "", conducting: "", organist: "", chorister: "" },
+        program: { 
+          openingHymn: "", 
+          sacramentHymn: "", 
+          intermediateHymn: "", 
+          closingHymn: "",
+          speaker1: "",
+          speaker2: "",
+          speaker3: "",
+          announcements: ""
+        },
+        secondHour: {
+          block1: [
+            { name: "Adult Sunday School", teacher: "", topic: "" },
+            { name: "Youth Sunday School", teacher: "", topic: "" }
+          ],
+          block2: [
+            { name: "Relief Society", teacher: "", topic: "" },
+            { name: "Elders Quorum", teacher: "", topic: "" },
+            { name: "Aaronic Priesthood", teacher: "", topic: "" },
+            { name: "Young Women", teacher: "", topic: "" }
+          ],
+          primary: { teacher: "Primary Presidency", topic: "Singing Time & Classes" },
+          override: "auto" as "auto" | "legacy" | "new"
+        },
+        classes: [
+          { name: "Relief Society / Elders Quorum", teacher: "", topic: "" },
+          { name: "Sunday School", teacher: "", topic: "" }
+        ],
+        attendance: { beforeSacrament: "", afterSacrament: "" }
+      }
+    };
   });
 
   useEffect(() => {
@@ -38,13 +73,45 @@ export function SundayArchitect() {
     if (data?.success) {
       const found = data.agendas.find((a: any) => a.$id === id);
       if (found) {
+        // Migration helper: Ensure both structures exist for cross-compatibility
+        const migratedData = { ...found.data };
+        
+        // 1. If old 'classes' exists, ensure 'secondHour' is populated
+        if (migratedData.classes && !migratedData.secondHour) {
+          migratedData.secondHour = {
+            block1: migratedData.classes.slice(0, 2),
+            block2: [],
+            primary: { teacher: "Primary Presidency", topic: "Singing Time & Classes" }
+          };
+        }
+
+        // 2. If new 'secondHour' exists, ensure 'classes' is populated for legacy view support
+        if (migratedData.secondHour && !migratedData.classes) {
+          migratedData.classes = [
+            ...(migratedData.secondHour.block1 || []),
+            ...(migratedData.secondHour.block2 || [])
+          ].slice(0, 4); // Limit for legacy view
+          
+          if (migratedData.classes.length === 0) {
+            migratedData.classes = [
+              { name: "Relief Society / Elders Quorum", teacher: "", topic: "" },
+              { name: "Sunday School", teacher: "", topic: "" }
+            ];
+          }
+        }
+
+        // 3. Ensure 'attendance' exists
+        if (!migratedData.attendance) {
+          migratedData.attendance = { beforeSacrament: "", afterSacrament: "" };
+        }
+
         setAgenda({
           id: found.$id,
           title: found.title,
           date: found.date,
           type: found.type,
           status: found.status,
-          data: found.data
+          data: migratedData
         });
       }
     }
@@ -53,14 +120,55 @@ export function SundayArchitect() {
 
   const [hymnSuggestions, setHymnSuggestions] = useState<any[]>([]);
   const [activeSearchField, setActiveSearchField] = useState<string | null>(null);
+  const [activeBook, setActiveBook] = useState('hymns');
+
+  const updateClass = (block: string, index: number | null, field: string, value: string) => {
+    setAgenda(prev => {
+      const newData = { ...prev.data } as any;
+      if (block === 'legacy') {
+        newData.classes[index!] = { ...newData.classes[index!], [field]: value };
+      } else if (block === 'config') {
+        newData.secondHour[field] = value;
+      } else if (index !== null) {
+        newData.secondHour[block][index] = { 
+          ...newData.secondHour[block][index], 
+          [field]: value 
+        };
+      } else {
+        newData.secondHour[block] = { 
+          ...newData.secondHour[block], 
+          [field]: value 
+        };
+      }
+      return {
+        ...prev,
+        data: newData
+      };
+    });
+  };
+
+  const updateData = (section: string, field: string, value: string) => {
+    setAgenda(prev => {
+      const sectionData = (prev.data as any)[section] || {};
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          [section]: {
+            ...sectionData,
+            [field]: value
+          }
+        }
+      };
+    });
+  };
 
   const searchHymns = async (query: string, field: string) => {
     setActiveSearchField(field);
-    if (query.length < 2) {
-      setHymnSuggestions([]);
-      return;
-    }
-    const { data } = await actions.getLibraryItems({ collection: 'hymns', search: query });
+    const { data } = await actions.getLibraryItems({ 
+      collection: activeBook as any, 
+      search: query 
+    });
     if (data?.success) {
       setHymnSuggestions(data.items);
     }
@@ -88,35 +196,11 @@ export function SundayArchitect() {
     setSaving(false);
   };
 
-  const updateData = (section: string, field: string, value: string) => {
-    setAgenda(prev => ({
-      ...prev,
-      data: {
-        ...prev.data,
-        [section]: {
-          ...(prev.data as any)[section],
-          [field]: value
-        }
-      }
-    }));
-  };
-
-  const updateClass = (index: number, field: string, value: string) => {
-    setAgenda(prev => {
-      const newClasses = [...prev.data.classes];
-      newClasses[index] = { ...newClasses[index], [field]: value };
-      return {
-        ...prev,
-        data: { ...prev.data, classes: newClasses }
-      };
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-on-surface-variant font-bold">Loading Agenda Architect...</p>
+        <p className="text-on-surface-variant font-bold">Loading...</p>
       </div>
     );
   }
@@ -124,27 +208,23 @@ export function SundayArchitect() {
   return (
     <div className="pb-32 space-y-10">
       {/* Dynamic Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col items-center text-center gap-6">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-widest">
-            <Sparkles className="h-3 w-3" />
-            Agenda Architect
-          </div>
           <h1 className="text-4xl font-black text-primary tracking-tight">
             <input 
               type="text" 
               value={agenda.title} 
               onChange={(e) => setAgenda(prev => ({ ...prev, title: e.target.value }))}
-              className="bg-transparent border-none outline-none focus:ring-0 w-full"
+              className="bg-transparent border-none outline-none focus:ring-0 w-full text-center"
             />
           </h1>
-          <p className="text-on-surface-variant font-medium flex items-center gap-2">
+          <p className="text-on-surface-variant font-medium flex items-center justify-center gap-2">
             <Calendar className="h-4 w-4" />
             <input 
               type="date" 
               value={agenda.date} 
               onChange={(e) => setAgenda(prev => ({ ...prev, date: e.target.value }))}
-              className="bg-transparent border-none outline-none focus:ring-0 text-sm font-bold"
+              className="bg-transparent border-none outline-none focus:ring-0 text-sm font-bold text-center"
             />
           </p>
         </div>
@@ -194,10 +274,13 @@ export function SundayArchitect() {
             <SacramentFlow 
               agenda={agenda} 
               updateData={updateData} 
-              searchHymns={searchHymns}
+              searchHymns={searchHymns} 
               hymnSuggestions={hymnSuggestions}
               activeSearchField={activeSearchField}
               selectHymn={selectHymn}
+              activeBook={activeBook}
+              setActiveBook={setActiveBook}
+              setActiveSearchField={setActiveSearchField}
             />
           ) : (
             <SecondHourFlow agenda={agenda} updateClass={updateClass} />
@@ -207,14 +290,28 @@ export function SundayArchitect() {
         {/* Sticky Sidebar / Quick Info */}
         <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
           <div className="bg-surface-container-low p-6 rounded-[2.5rem] border border-outline-variant/20 space-y-6">
-            <h3 className="font-bold text-primary flex items-center gap-2">
-              <Clock className="h-4 w-4 text-secondary" />
-              Service Timing
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-black text-primary uppercase tracking-widest text-xs">
+                Service Timing
+              </h3>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-tighter">Live Preview</span>
+              </div>
+            </div>
             <div className="space-y-4">
-              <TimeItem label="Prelude" time="9:50 AM" />
-              <TimeItem label="Start" time="10:00 AM" />
-              <TimeItem label="End" time="11:00 AM" />
+              <TimeItem label="Start Service" time="10:00 AM" />
+              
+              {(agenda.data.secondHour?.override === 'new' || (agenda.data.secondHour?.override === 'auto' && isNewSchedule(agenda.date))) ? (
+                <>
+                  <div className="flex items-center gap-2 px-4 py-1 bg-secondary/5 border border-secondary/10 border-dashed rounded-xl">
+                    <Clock className="h-3 w-3 text-secondary" />
+                    <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Transitions Included</span>
+                  </div>
+                </>
+              ) : null}
+
+              <TimeItem label="End Service" time="12:00 PM" />
             </div>
             <hr className="border-outline-variant/20" />
             <div className="flex items-center gap-3 text-sm text-on-surface-variant">
@@ -243,7 +340,7 @@ function ChurchIcon(props: any) {
   );
 }
 
-function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn }: any) {
+function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn, activeBook, setActiveBook, setActiveSearchField }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
       <Section title="Leadership & Music" icon={Users}>
@@ -255,12 +352,58 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
         </div>
       </Section>
 
+      <Section title="Announcements" icon={MessageSquare}>
+        <div className="space-y-4">
+          <p className="text-xs text-on-surface-variant font-medium">Add important ward or branch announcements for the beginning of the service.</p>
+          <div className="space-y-2.5">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-1">
+              Weekly Announcements
+            </label>
+            <textarea
+              value={agenda.data.program.announcements || ""}
+              onChange={(e) => updateData('program', 'announcements', e.target.value)}
+              placeholder="Enter announcements here..."
+              className="w-full bg-surface border border-outline-variant/40 px-6 py-4 rounded-2xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary placeholder:text-on-surface-variant/50 min-h-[120px]"
+            />
+          </div>
+        </div>
+      </Section>
+
       <Section title="Sacred Program" icon={Music}>
         <div className="space-y-6">
           <div className="relative">
-            <ModernInput label="Opening Hymn" placeholder="Search Hymn..." icon={Sparkles} value={agenda.data.program.openingHymn} onChange={(val: string) => { updateData('program', 'openingHymn', val); searchHymns(val, 'openingHymn'); }} />
-            {activeSearchField === 'openingHymn' && hymnSuggestions.length > 0 && (
+            <ModernInput 
+              label="Opening Hymn" 
+              placeholder={`Search...`} 
+              icon={Sparkles} 
+              value={agenda.data.program.openingHymn} 
+              onFocus={() => setActiveSearchField('openingHymn')}
+              onChange={(val: string) => { updateData('program', 'openingHymn', val); searchHymns(val, 'openingHymn'); }} 
+            />
+            {activeSearchField === 'openingHymn' && (
               <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                <div className="flex items-center justify-between p-3 bg-primary text-white">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
+                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
+                </div>
+                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
+                  {[
+                    { id: 'hymns', label: 'Hymns' },
+                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
+                    { id: 'new_hymns', label: 'New Hymns' },
+                    { id: 'youth_music', label: 'Music' }
+                  ].map((book) => (
+                    <button
+                      key={book.id}
+                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
+                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
+                      }`}
+                    >
+                      {book.label}
+                    </button>
+                  ))}
+                </div>
                 {hymnSuggestions.map((h: any) => (
                   <button key={h.$id} onClick={() => selectHymn(h, 'program', 'openingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
                     <span>{h.title}</span>
@@ -272,9 +415,37 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
           </div>
 
           <div className="relative">
-            <ModernInput label="Sacrament Hymn" placeholder="Search Hymn..." value={agenda.data.program.sacramentHymn} onChange={(val: string) => { updateData('program', 'sacramentHymn', val); searchHymns(val, 'sacramentHymn'); }} />
-            {activeSearchField === 'sacramentHymn' && hymnSuggestions.length > 0 && (
+            <ModernInput 
+              label="Sacrament Hymn" 
+              placeholder={`Search...`} 
+              value={agenda.data.program.sacramentHymn} 
+              onFocus={() => setActiveSearchField('sacramentHymn')}
+              onChange={(val: string) => { updateData('program', 'sacramentHymn', val); searchHymns(val, 'sacramentHymn'); }} 
+            />
+            {activeSearchField === 'sacramentHymn' && (
               <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                <div className="flex items-center justify-between p-3 bg-primary text-white">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
+                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
+                </div>
+                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
+                  {[
+                    { id: 'hymns', label: 'Hymns' },
+                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
+                    { id: 'new_hymns', label: 'New Hymns' },
+                    { id: 'youth_music', label: 'Music' }
+                  ].map((book) => (
+                    <button
+                      key={book.id}
+                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
+                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
+                      }`}
+                    >
+                      {book.label}
+                    </button>
+                  ))}
+                </div>
                 {hymnSuggestions.map((h: any) => (
                   <button key={h.$id} onClick={() => selectHymn(h, 'program', 'sacramentHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
                     <span>{h.title}</span>
@@ -285,17 +456,80 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
             )}
           </div>
 
-          <div className="bg-secondary/5 p-6 rounded-3xl border border-secondary/20 border-dashed">
-            <button className="flex items-center gap-2 text-secondary font-bold w-full justify-center">
-              <Plus className="h-5 w-5" />
-              Add Program Item (Talk, Musical Number)
-            </button>
+          <div className="relative">
+            <ModernInput 
+              label="Intermediate Hymn / Special Music" 
+              placeholder={`Search...`} 
+              value={agenda.data.program.intermediateHymn} 
+              onFocus={() => setActiveSearchField('intermediateHymn')}
+              onChange={(val: string) => { updateData('program', 'intermediateHymn', val); searchHymns(val, 'intermediateHymn'); }} 
+            />
+            {activeSearchField === 'intermediateHymn' && (
+              <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                <div className="flex items-center justify-between p-3 bg-primary text-white">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
+                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
+                </div>
+                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
+                  {[
+                    { id: 'hymns', label: 'Hymns' },
+                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
+                    { id: 'new_hymns', label: 'New Hymns' },
+                    { id: 'youth_music', label: 'Music' }
+                  ].map((book) => (
+                    <button
+                      key={book.id}
+                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
+                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
+                      }`}
+                    >
+                      {book.label}
+                    </button>
+                  ))}
+                </div>
+                {hymnSuggestions.map((h: any) => (
+                  <button key={h.$id} onClick={() => selectHymn(h, 'program', 'intermediateHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
+                    <span>{h.title}</span>
+                    <span className="text-secondary font-black">#{h.number}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="relative">
-            <ModernInput label="Closing Hymn" placeholder="Search Hymn..." value={agenda.data.program.closingHymn} onChange={(val: string) => { updateData('program', 'closingHymn', val); searchHymns(val, 'closingHymn'); }} />
-            {activeSearchField === 'closingHymn' && hymnSuggestions.length > 0 && (
+            <ModernInput 
+              label="Closing Hymn" 
+              placeholder={`Search...`} 
+              value={agenda.data.program.closingHymn} 
+              onFocus={() => setActiveSearchField('closingHymn')}
+              onChange={(val: string) => { updateData('program', 'closingHymn', val); searchHymns(val, 'closingHymn'); }} 
+            />
+            {activeSearchField === 'closingHymn' && (
               <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
+                <div className="flex items-center justify-between p-3 bg-primary text-white">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Select Book</span>
+                  <button onClick={() => setActiveSearchField(null)}><X className="h-4 w-4" /></button>
+                </div>
+                <div className="flex flex-wrap gap-1 p-2 bg-surface-container-low border-b border-outline-variant/10">
+                  {[
+                    { id: 'hymns', label: 'Hymns' },
+                    { id: 'childrens_songbook', label: 'Children\'s Hymns' },
+                    { id: 'new_hymns', label: 'New Hymns' },
+                    { id: 'youth_music', label: 'Music' }
+                  ].map((book) => (
+                    <button
+                      key={book.id}
+                      onClick={(e) => { e.stopPropagation(); setActiveBook(book.id); }}
+                      className={`flex-1 px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                        activeBook === book.id ? "bg-primary text-white" : "text-on-surface-variant hover:bg-white"
+                      }`}
+                    >
+                      {book.label}
+                    </button>
+                  ))}
+                </div>
                 {hymnSuggestions.map((h: any) => (
                   <button key={h.$id} onClick={() => selectHymn(h, 'program', 'closingHymn')} className="w-full px-6 py-4 text-left hover:bg-secondary/10 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between">
                     <span>{h.title}</span>
@@ -305,6 +539,37 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
               </div>
             )}
           </div>
+
+          <div className="pt-6 border-t border-outline-variant/10 space-y-6">
+            <h4 className="text-xs font-black uppercase tracking-widest text-primary/60">Speakers</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <ModernInput label="1st Speaker" placeholder="Youth / Guest" value={agenda.data.program.speaker1} onChange={(val: string) => updateData('program', 'speaker1', val)} />
+              <ModernInput label="2nd Speaker" placeholder="Guest / Musical Number" value={agenda.data.program.speaker2} onChange={(val: string) => updateData('program', 'speaker2', val)} />
+              <ModernInput label="3rd Speaker" placeholder="Bishopric / High Council" value={agenda.data.program.speaker3} onChange={(val: string) => updateData('program', 'speaker3', val)} />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Attendance Tracker" icon={Users}>
+        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 space-y-6">
+          <p className="text-xs text-on-surface-variant font-medium">Track attendance at two points during the first hour.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ModernInput 
+              label="Before Sacrament" 
+              placeholder="0" 
+              type="number"
+              value={agenda.data.attendance?.beforeSacrament} 
+              onChange={(val: string) => updateData('attendance', 'beforeSacrament', val)} 
+            />
+            <ModernInput 
+              label="After Sacrament" 
+              placeholder="0" 
+              type="number"
+              value={agenda.data.attendance?.afterSacrament} 
+              onChange={(val: string) => updateData('attendance', 'afterSacrament', val)} 
+            />
+          </div>
         </div>
       </Section>
     </motion.div>
@@ -312,24 +577,104 @@ function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activ
 }
 
 function SecondHourFlow({ agenda, updateClass }: any) {
+  const isAuto = agenda.data.secondHour?.override === 'auto' || !agenda.data.secondHour?.override;
+  const isNew = agenda.data.secondHour?.override === 'new' || (isAuto && isNewSchedule(agenda.date));
+
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-      <Section title="Class Coordination" icon={Book}>
-        <div className="space-y-6">
-          {agenda.data.classes.map((cls: any, i: number) => (
-            <div key={i} className="bg-white p-8 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-outline-variant/10">
-                <div className="bg-amber-100 p-2 rounded-xl text-amber-600"><Sparkles className="h-4 w-4" /></div>
-                <h4 className="font-bold text-primary">{cls.name}</h4>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ModernInput label="Teacher" placeholder="Instructor Name" value={cls.teacher} onChange={(val: string) => updateClass(i, 'teacher', val)} />
-                <ModernInput label="Topic" placeholder="Lesson Topic" value={cls.topic} onChange={(val: string) => updateClass(i, 'topic', val)} />
-              </div>
-            </div>
+      {/* Schedule Mode Selector */}
+      <div className="bg-surface-container-low p-6 rounded-[2rem] border border-outline-variant/30 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h4 className="font-bold text-primary">Schedule Format</h4>
+          <p className="text-xs text-on-surface-variant">Choose the Sunday schedule structure for this agenda.</p>
+        </div>
+        <div className="flex bg-white p-1 rounded-xl border border-outline-variant/20 shadow-inner">
+          {[
+            { id: 'auto', label: 'Auto (Date)' },
+            { id: 'legacy', label: 'Legacy' },
+            { id: 'new', label: '2026 Format' }
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => updateClass('config', null, 'override', mode.id)}
+              className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
+                agenda.data.secondHour?.override === mode.id || (!agenda.data.secondHour?.override && mode.id === 'auto')
+                  ? "bg-secondary text-on-secondary shadow-md"
+                  : "text-on-surface-variant hover:text-secondary"
+              }`}
+            >
+              {mode.label}
+            </button>
           ))}
         </div>
-      </Section>
+      </div>
+
+      {!isNew ? (
+        <Section title="Second Hour Classes" icon={Users}>
+          <div className="space-y-6">
+            {agenda.data.classes?.map((cls: any, i: number) => (
+              <div key={i} className="bg-white p-6 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-4">
+                <div className="flex items-center gap-3 pb-2 border-b border-outline-variant/10">
+                  <h4 className="font-bold text-primary">{cls.name}</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ModernInput label="Teacher" placeholder="Instructor Name" value={cls.teacher} onChange={(val: string) => updateClass('legacy', i, 'teacher', val)} />
+                  <ModernInput label="Topic" placeholder="Lesson Topic" value={cls.topic} onChange={(val: string) => updateClass('legacy', i, 'topic', val)} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ) : (
+        <>
+          {/* Block 1: Sunday School */}
+          <Section title="Block 1: Sunday School (25 min)" icon={Book}>
+            <div className="space-y-6">
+              {agenda.data.secondHour.block1.map((cls: any, i: number) => (
+                <div key={i} className="bg-white p-6 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-4">
+                  <div className="flex items-center gap-3 pb-2 border-b border-outline-variant/10">
+                    <h4 className="font-bold text-primary">{cls.name}</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ModernInput label="Teacher" placeholder="Instructor Name" value={cls.teacher} onChange={(val: string) => updateClass('block1', i, 'teacher', val)} />
+                    <ModernInput label="Topic" placeholder="Lesson Topic" value={cls.topic} onChange={(val: string) => updateClass('block1', i, 'topic', val)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Block 2: Quorums & Classes */}
+          <Section title="Block 2: Quorums & Classes (25 min)" icon={Users}>
+            <div className="space-y-6">
+              {agenda.data.secondHour.block2.map((cls: any, i: number) => (
+                <div key={i} className="bg-white p-6 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-4">
+                  <div className="flex items-center gap-3 pb-2 border-b border-outline-variant/10">
+                    <h4 className="font-bold text-primary">{cls.name}</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ModernInput label="Teacher" placeholder="Instructor Name" value={cls.teacher} onChange={(val: string) => updateClass('block2', i, 'teacher', val)} />
+                    <ModernInput label="Topic" placeholder="Lesson Topic" value={cls.topic} onChange={(val: string) => updateClass('block2', i, 'topic', val)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Parallel: Primary */}
+          <Section title="Primary (55 min)" icon={Sparkles}>
+            <div className="bg-white p-6 rounded-[2rem] border border-outline-variant/30 shadow-sm space-y-4">
+              <div className="flex items-center gap-3 pb-2 border-b border-outline-variant/10">
+                <h4 className="font-bold text-primary text-sm uppercase tracking-widest">Held parallel to both blocks</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ModernInput label="Presidency/Lead" placeholder="Primary Presidency" value={agenda.data.secondHour.primary.teacher} onChange={(val: string) => updateClass('primary', null, 'teacher', val)} />
+                <ModernInput label="Special Focus" placeholder="Singing Time / Theme" value={agenda.data.secondHour.primary.topic} onChange={(val: string) => updateClass('primary', null, 'topic', val)} />
+              </div>
+            </div>
+          </Section>
+        </>
+      )}
     </motion.div>
   );
 }
@@ -348,7 +693,7 @@ function Section({ title, icon: Icon, children }: any) {
   );
 }
 
-function ModernInput({ label, placeholder, icon: Icon, value, onChange }: any) {
+function ModernInput({ label, placeholder, icon: Icon, value, onChange, onFocus, type = "text" }: any) {
   return (
     <div className="space-y-2.5">
       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-1">
@@ -356,9 +701,10 @@ function ModernInput({ label, placeholder, icon: Icon, value, onChange }: any) {
       </label>
       <div className="relative group">
         <input
-          type="text"
+          type={type}
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
           placeholder={placeholder}
           className="w-full bg-surface border border-outline-variant/40 px-6 py-4 rounded-2xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary placeholder:text-on-surface-variant/50"
         />

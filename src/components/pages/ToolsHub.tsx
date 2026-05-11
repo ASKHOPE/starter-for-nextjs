@@ -25,13 +25,6 @@ const tools = [
     href: "/tools/attendance",
   },
   {
-    title: "Document Vault",
-    description: "Securely store and share organizational docs.",
-    icon: ShieldCheck,
-    color: "bg-indigo-600",
-    href: "/tools/vault",
-  },
-  {
     title: "Data Export",
     description: "Download agenda and attendance records.",
     icon: Database,
@@ -50,14 +43,9 @@ const tools = [
 export function ToolsHub() {
   return (
     <div className="space-y-12 pb-32">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-widest mb-1">
-            <Wrench className="h-3 w-3" />
-            System Control
-          </div>
-          <h1 className="text-4xl font-black text-primary tracking-tight">Admin Tools</h1>
-          <p className="text-on-surface-variant mt-2 font-medium">Powerful utilities for ward organizational management.</p>
+      <div className="flex flex-col items-center text-center gap-8">
+        <div className="max-w-2xl">
+          <h1 className="text-4xl md:text-5xl font-black text-primary tracking-tight">Admin Tools</h1>
         </div>
       </div>
 
@@ -79,7 +67,7 @@ export function ToolsHub() {
               <p className="text-on-surface-variant text-sm font-medium leading-relaxed">{tool.description}</p>
             </div>
             <div className="mt-8 flex items-center gap-2 text-xs font-black text-secondary uppercase tracking-widest group-hover:gap-4 transition-all">
-              Launch Tool <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
             </div>
           </motion.a>
         ))}

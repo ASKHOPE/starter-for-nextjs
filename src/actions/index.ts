@@ -107,8 +107,9 @@ export const server = {
   }),
   getLibraryItems: defineAction({
     input: z.object({
-      collection: z.enum(['hymns', 'come_follow_me', 'general_conference_talks', 'gospel_principles', 'childrens_songbook', 'new_hymns', 'youth_music']),
+      collection: z.enum(['hymns', 'come_follow_me', 'general_conference_talks', 'gospel_principles', 'childrens_songbook', 'new_hymns', 'youth_music', 'scriptures']),
       search: z.string().optional(),
+      volume: z.string().optional(),
     }),
     handler: async (input, context) => {
       console.log(`📚 Fetching library items for: ${input.collection}`);
@@ -118,7 +119,14 @@ export const server = {
 
       const queries = [Query.limit(100)];
       if (input.search) {
-        queries.push(Query.search('title', input.search));
+        if (input.collection === 'scriptures') {
+          queries.push(Query.search('content', input.search));
+        } else {
+          queries.push(Query.search('title', input.search));
+        }
+      }
+      if (input.volume) {
+        queries.push(Query.equal('volume', input.volume));
       }
 
       try {

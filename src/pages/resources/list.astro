@@ -4,11 +4,12 @@ import { LibraryList } from '../../components/pages/LibraryList';
 
 const collection = Astro.url.searchParams.get('collection');
 const title = Astro.url.searchParams.get('title');
+const volume = Astro.url.searchParams.get('volume');
 ---
 
 <Layout title={title || "Sacred Library"}>
   {collection ? (
-    <LibraryList client:load collection={collection} title={title} />
+    <LibraryList client:load collection={collection} title={title} volume={volume} />
   ) : (
     <div class="flex items-center justify-center min-h-[60vh] text-on-surface-variant font-bold">
       Category Not Found
