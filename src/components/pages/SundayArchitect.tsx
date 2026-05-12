@@ -1,4 +1,4 @@
-﻿import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Church, Music, Users, Book, Save, Clock, MapPin, Sparkles, Loader2, Calendar, X, MessageSquare, ChevronLeft, Zap, ChevronDown, Printer, ClipboardList, Trash2, Plus, ArrowRight, LayoutGrid } from "lucide-react";
 import { useState, useEffect } from "react";
 import { actions } from "astro:actions";
@@ -554,7 +554,7 @@ export function SundayArchitect() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Top Command Bar Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Top Command Bar ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <div className="flex-shrink-0 bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm z-[100]">
         {/* Row 1 */}
         <div className="flex items-center gap-3 px-5 py-2.5 border-b border-slate-100">
@@ -650,7 +650,7 @@ export function SundayArchitect() {
         </div>
       </div>
 
-      {/* â”€â”€ Undo Toast â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Undo Toast Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <AnimatePresence>
         {showUndo && (
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
@@ -661,7 +661,7 @@ export function SundayArchitect() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€ Full-Width Content â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Full-Width Content Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div className="flex-1 overflow-y-auto bg-slate-50">
         <div className="max-w-5xl mx-auto px-6 py-6">
           {activeTab === 'sacrament' ? (
@@ -713,71 +713,259 @@ function ModernInput({ label, placeholder, icon: Icon, value, onChange, onFocus,
   );
 }
 
-function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, selectHymn, activeBook, setActiveBook, setActiveSearchField, updateBlock, moveBlock, removeBlock, addBlock }: any) {
-  const [newCustomLabel, setNewCustomLabel] = useState("");
+// â”€â”€ Type icon/color helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const BLOCK_META: Record<string, { icon: string; color: string; bg: string }> = {
+  hymn:    { icon: 'â™ª', color: 'text-primary',   bg: 'bg-primary/10' },
+  prayer:  { icon: 'ðŸ™', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  sacrament:{ icon: 'ðŸ¥–', color: 'text-amber-700', bg: 'bg-amber-50' },
+  speaker: { icon: 'ðŸ‘¤', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+  business:{ icon: 'ðŸ“‹', color: 'text-slate-600',  bg: 'bg-slate-100' },
+  custom:  { icon: 'âœ¦',  color: 'text-secondary',  bg: 'bg-secondary/10' },
+};
+const blockMeta = (type: string) => BLOCK_META[type] || BLOCK_META.custom;
+
+// â”€â”€ HymnPicker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function HymnPicker({ blockId, label, value, onChange, searchHymns, hymnSuggestions, activeSearchField, setActiveSearchField, activeBook }: any) {
+  const isActive = activeSearchField === blockId;
+  const BOOKS = [
+    { id: 'hymns',             label: 'Hymns' },
+    { id: 'childrens_songbook',label: "Children's" },
+    { id: 'new_hymns',         label: 'New Hymns' },
+  ];
   return (
-    <div className="space-y-10">
-      <Section title="Leadership & Music" icon={Users}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ModernInput label="Presiding" value={agenda.data.leadership.presiding} onChange={(val: string) => updateData('leadership', 'presiding', val)} />
-          <ModernInput label="Conducting" value={agenda.data.leadership.conducting} onChange={(val: string) => updateData('leadership', 'conducting', val)} />
-          <ModernInput label="Organist" value={agenda.data.leadership.organist} onChange={(val: string) => updateData('leadership', 'organist', val)} />
-          <ModernInput label="Chorister" value={agenda.data.leadership.chorister} onChange={(val: string) => updateData('leadership', 'chorister', val)} />
-        </div>
-      </Section>
-      <Section title="Meeting Program" icon={Book}>
-        <div className="space-y-6">
-          <div className="space-y-2.5"><label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-1">Announcements</label><textarea className="w-full bg-white/50 border border-outline-variant/40 px-6 py-4 rounded-2xl outline-none focus:border-primary transition-all min-h-[120px]" value={agenda.data.program.announcements || ""} onChange={(e) => updateData('program', 'announcements', e.target.value)} /></div>
-          {agenda.data.program.blocks.map((block: any, i: number) => (
-            <div key={block.id} className="group relative flex items-start gap-4 bg-white p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
-              <div className="flex-1 space-y-4">
-                {block.type === 'hymn' ? (
-                  <div className="relative">
-                    <ModernInput label={block.label} value={block.value} onFocus={() => setActiveSearchField(block.id)} onChange={(val: string) => { updateBlock(block.id, val); searchHymns(val, block.id); }} icon={Sparkles} />
-                    {activeSearchField === block.id && hymnSuggestions.length > 0 && (
-                      <div className="absolute z-[120] w-full mt-2 bg-white rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden">
-                        <div className="flex p-2 bg-surface-container-low border-b border-outline-variant/10">
-                          {['hymns', 'childrens_songbook', 'new_hymns'].map(book => (
-                            <button key={book} onClick={() => setActiveBook(book)} className={`flex-1 px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest ${activeBook === book ? "bg-primary text-white" : "text-on-surface-variant"}`}>{book.replace('_', ' ')}</button>
-                          ))}
-                        </div>
-                        {hymnSuggestions.map((h: any) => (
-                          <button key={h.$id} onClick={() => selectHymn(h, 'block', block.id)} className="w-full px-6 py-4 text-left hover:bg-primary/5 font-medium text-primary border-b border-outline-variant/10 last:border-0 flex justify-between"><span>{h.title}</span><span className="text-secondary font-black">#{h.number}</span></button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : block.type === 'sacrament' ? (
-                  <div className="py-8 text-center bg-primary/5 rounded-2xl border border-dashed border-primary/20"><p className="text-sm font-black text-primary uppercase tracking-widest">Administration of the Sacrament</p></div>
-                ) : (
-                  <ModernInput label={block.label} value={block.value} onChange={(val: string) => updateBlock(block.id, val)} />
-                )}
-                <div className="flex items-center gap-4 bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
-                  <Clock className="h-4 w-4 text-primary/40" /><span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">Duration (min):</span>
-                  <div className="flex items-center gap-2">{[5, 10, 15].map(mins => (
-                    <button key={mins} onClick={() => updateBlock(block.id, mins, 'duration')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black ${block.duration === mins ? "bg-primary text-white shadow-lg" : "bg-white text-on-surface-variant/40"}`}>{mins}m</button>
-                  ))}<input type="number" value={block.duration || ""} onChange={(e) => updateBlock(block.id, parseInt(e.target.value) || 0, 'duration')} className="w-16 bg-white rounded-lg border border-outline-variant/10 text-center text-[10px] font-black text-primary outline-none px-2 py-1" /></div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => moveBlock(i, 'up')} disabled={i === 0} className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl disabled:opacity-20"><ChevronLeft className="h-4 w-4 rotate-90" /></button>
-                <button onClick={() => removeBlock(i)} className="p-2 text-error hover:bg-error/10 rounded-xl"><Trash2 className="h-4 w-4" /></button>
-                <button onClick={() => moveBlock(i, 'down')} disabled={i === agenda.data.program.blocks.length - 1} className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl disabled:opacity-20"><ChevronLeft className="h-4 w-4 -rotate-90" /></button>
-              </div>
+    <div className="relative flex-1 min-w-0">
+      <input
+        type="text"
+        value={value || ''}
+        onChange={(e) => { onChange(e.target.value); searchHymns(e.target.value, blockId); }}
+        onFocus={() => searchHymns(value || '', blockId)}
+        onBlur={() => setTimeout(() => setActiveSearchField(null), 200)}
+        placeholder="Search by name or #numberâ€¦"
+        className="w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all text-sm text-slate-800 font-medium"
+      />
+      {isActive && (
+        <div className="absolute z-[300] left-0 right-0 top-full mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="flex gap-1 p-2 bg-slate-50 border-b border-slate-100">
+            {BOOKS.map(book => (
+              <button key={book.id}
+                onMouseDown={(e) => { e.preventDefault(); searchHymns(value || '', blockId, book.id); }}
+                className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeBook === book.id ? 'bg-primary text-white' : 'text-slate-400 hover:bg-slate-100'}`}>
+                {book.label}
+              </button>
+            ))}
+          </div>
+          {hymnSuggestions.length > 0 ? (
+            <div className="max-h-56 overflow-y-auto divide-y divide-slate-50">
+              {hymnSuggestions.map((h: any) => (
+                <button key={h.$id || h.id}
+                  onMouseDown={(e) => { e.preventDefault(); onChange(`${h.number ? `#${h.number} ` : ''}${h.title}`); setActiveSearchField(null); }}
+                  className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-primary/5 transition-all">
+                  <span className="text-sm text-slate-700 font-medium">{h.title}</span>
+                  {h.number && <span className="ml-3 text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full"># {h.number}</span>}
+                </button>
+              ))}
             </div>
-          ))}
-          <div className="pt-8 border-t border-outline-variant/10 flex gap-4">
-            <div className="flex-1"><ModernInput label="Add Program Item" value={newCustomLabel} onChange={setNewCustomLabel} /></div>
-            <button onClick={() => { if (newCustomLabel) { addBlock('custom', newCustomLabel); setNewCustomLabel(''); } }} className="bg-primary text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest mt-6">Add Block</button>
+          ) : (
+            <p className="px-5 py-5 text-xs text-slate-400 text-center">{value ? `No results for "${value}"` : 'Start typing or pick a book aboveâ€¦'}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// â”€â”€ SacramentFlow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function SacramentFlow({ agenda, updateData, searchHymns, hymnSuggestions, activeSearchField, activeBook, setActiveSearchField, updateBlock, moveBlock, removeBlock, addBlock, editingTiming, setEditingTiming }: any) {
+  const [newLabel, setNewLabel] = useState('');
+  const [newType, setNewType]   = useState('custom');
+  const totalMin = agenda.data.program.blocks.reduce((a: number, b: any) => a + (b.duration || 0), 0);
+
+  return (
+    <div className="space-y-6">
+
+      {/* â”€â”€ Meeting Header Bar â”€â”€â”€ */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4 flex flex-wrap items-center gap-6">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Meeting</p>
+          <p className="text-base font-black text-primary">{agenda.title || 'Sacrament Meeting'}</p>
+        </div>
+        <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2">
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-[9px] font-black uppercase text-slate-400">Start</span>
+            <input type="text" value={agenda.data.timing?.start || '10:00 AM'} onChange={(e) => updateData('timing', 'start', e.target.value)}
+              className="bg-transparent border-none p-0 text-sm font-black text-primary outline-none w-20" />
+          </div>
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2">
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-[9px] font-black uppercase text-slate-400">End</span>
+            <input type="text" value={agenda.data.timing?.end || '12:00 PM'} onChange={(e) => updateData('timing', 'end', e.target.value)}
+              className="bg-transparent border-none p-0 text-sm font-black text-primary outline-none w-20" />
+          </div>
+          <div className="px-4 py-2 bg-primary/10 rounded-xl">
+            <span className="text-[9px] font-black uppercase text-primary">{totalMin} min total</span>
           </div>
         </div>
-      </Section>
-      <Section title="Attendance Tracker" icon={Users}>
-        <div className="bg-surface-container-low p-8 rounded-[2.5rem] border border-outline-variant/10 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ModernInput label="Before Sacrament" type="number" value={agenda.data.attendance.beforeSacrament} onChange={(val: string) => updateData('attendance', 'beforeSacrament', val)} />
-          <ModernInput label="After Sacrament" type="number" value={agenda.data.attendance.afterSacrament} onChange={(val: string) => updateData('attendance', 'afterSacrament', val)} />
+      </div>
+
+      {/* â”€â”€ Leadership Grid â”€â”€â”€ */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Leadership & Conducting</span>
         </div>
-      </Section>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-100">
+          {[
+            { key: 'presiding', label: 'Presiding' },
+            { key: 'conducting', label: 'Conducting' },
+            { key: 'organist',   label: 'Organist' },
+            { key: 'chorister',  label: 'Chorister' },
+          ].map(f => (
+            <div key={f.key} className="bg-white px-5 py-4">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">{f.label}</p>
+              <input type="text" value={agenda.data.leadership[f.key] || ''}
+                onChange={(e) => updateData('leadership', f.key, e.target.value)}
+                placeholder={`${f.label}â€¦`}
+                className="w-full bg-transparent border-none p-0 text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-300" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* â”€â”€ Program Blocks â”€â”€â”€ */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Book className="h-4 w-4 text-primary" />
+            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Program</span>
+          </div>
+          <span className="text-[10px] text-slate-400">{agenda.data.program.blocks.length} items Â· {totalMin} min</span>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {agenda.data.program.blocks.map((block: any, i: number) => {
+            const meta = blockMeta(block.type);
+            return (
+              <div key={block.id} className="group flex items-start gap-3 px-5 py-3.5 hover:bg-slate-50 transition-all">
+                {/* Type badge */}
+                <div className={`flex-shrink-0 mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center text-base ${meta.bg}`}>
+                  <span>{meta.icon}</span>
+                </div>
+
+                {/* Field */}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${meta.color}`}>{block.label}</p>
+                  {block.type === 'hymn' ? (
+                    <HymnPicker
+                      blockId={block.id} value={block.value}
+                      onChange={(val: string) => updateBlock(block.id, val)}
+                      searchHymns={searchHymns} hymnSuggestions={hymnSuggestions}
+                      activeSearchField={activeSearchField} setActiveSearchField={setActiveSearchField}
+                      activeBook={activeBook}
+                    />
+                  ) : block.type === 'sacrament' ? (
+                    <div className="py-2 px-3 bg-amber-50 border border-dashed border-amber-200 rounded-xl">
+                      <p className="text-xs font-bold text-amber-700">Administration of the Sacrament</p>
+                    </div>
+                  ) : (
+                    <input type="text" value={block.value || ''}
+                      onChange={(e) => updateBlock(block.id, e.target.value)}
+                      placeholder={block.type === 'speaker' ? 'Speaker nameâ€¦' : block.type === 'prayer' ? 'By invitation' : 'Detailsâ€¦'}
+                      className="w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                  )}
+                </div>
+
+                {/* Duration */}
+                <div className="flex-shrink-0 flex items-center gap-1.5 mt-6">
+                  {[2, 5, 10, 15, 20, 30].map(m => (
+                    <button key={m} onClick={() => updateBlock(block.id, m, 'duration')}
+                      className={`px-2 py-1 rounded-lg text-[9px] font-black transition-all ${block.duration === m ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
+                      {m}m
+                    </button>
+                  ))}
+                  <input type="number" value={block.duration || ''} min={1}
+                    onChange={(e) => updateBlock(block.id, parseInt(e.target.value) || 0, 'duration')}
+                    className="w-12 bg-slate-100 rounded-lg border-none text-center text-[10px] font-black text-primary outline-none px-1 py-1" />
+                </div>
+
+                {/* Row actions */}
+                <div className="flex-shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity mt-6">
+                  <button onClick={() => moveBlock(i, 'up')} disabled={i === 0}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-20 transition-all">
+                    <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                  </button>
+                  <button onClick={() => moveBlock(i, 'down')} disabled={i === agenda.data.program.blocks.length - 1}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-20 transition-all">
+                    <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                  </button>
+                  <button onClick={() => removeBlock(i)}
+                    className="p-1.5 rounded-lg text-red-300 hover:text-red-500 hover:bg-red-50 transition-all">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Add block row */}
+        <div className="px-5 py-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
+          <select value={newType} onChange={(e) => setNewType(e.target.value)}
+            className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 outline-none">
+            <option value="custom">Custom</option>
+            <option value="hymn">Hymn</option>
+            <option value="speaker">Speaker</option>
+            <option value="prayer">Prayer</option>
+            <option value="business">Business</option>
+          </select>
+          <input type="text" value={newLabel} onChange={(e) => setNewLabel(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && newLabel) { addBlock(newType, newLabel); setNewLabel(''); } }}
+            placeholder="Item labelâ€¦ (press Enter)"
+            className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-primary transition-all" />
+          <button onClick={() => { if (newLabel) { addBlock(newType, newLabel); setNewLabel(''); } }}
+            className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all">
+            <Plus className="h-3.5 w-3.5" /> Add
+          </button>
+        </div>
+      </div>
+
+      {/* â”€â”€ Announcements â”€â”€â”€ */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-primary" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Announcements</span>
+        </div>
+        <div className="p-5">
+          <textarea value={agenda.data.program.announcements || ''}
+            onChange={(e) => updateData('program', 'announcements', e.target.value)}
+            placeholder="Ward announcementsâ€¦"
+            rows={3}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-primary resize-none transition-all" />
+        </div>
+      </div>
+
+      {/* â”€â”€ Attendance â”€â”€â”€ */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Attendance</span>
+        </div>
+        <div className="grid grid-cols-2 gap-px bg-slate-100">
+          <div className="bg-white px-5 py-4">
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Before Sacrament</p>
+            <input type="number" value={agenda.data.attendance?.beforeSacrament || ''}
+              onChange={(e) => updateData('attendance', 'beforeSacrament', e.target.value)}
+              placeholder="0" className="w-full bg-transparent border-none p-0 text-2xl font-black text-primary outline-none" />
+          </div>
+          <div className="bg-white px-5 py-4">
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">After Sacrament</p>
+            <input type="number" value={agenda.data.attendance?.afterSacrament || ''}
+              onChange={(e) => updateData('attendance', 'afterSacrament', e.target.value)}
+              placeholder="0" className="w-full bg-transparent border-none p-0 text-2xl font-black text-primary outline-none" />
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -824,99 +1012,266 @@ function SecondHourFlow({ agenda, updateClass }: any) {
   );
 }
 
-function ActivityFlow({ agenda, updateData, updateBlock, removeBlock, moveBlock, addBlock, addAssignment, updateAssignment, removeAssignment }: any) {
-  const [newCustomLabel, setNewCustomLabel] = useState("");
+function ActivityFlow({ agenda, updateData, updateBlock, removeBlock, moveBlock, addBlock, addAssignment, updateAssignment, removeAssignment, searchHymns, hymnSuggestions, activeSearchField, setActiveSearchField, activeBook }: any) {
+  const [newLabel, setNewLabel] = useState('');
+  const [newType, setNewType]   = useState('custom');
+  
   const blocks = agenda.data.activity?.program?.blocks || [];
   const activityStartTime = agenda.data.activity?.time || "19:00";
   const startTimeFormatted = formatTime(activityStartTime);
   const totalDuration = blocks.reduce((acc: number, b: any) => acc + (b.duration || 0), 0);
   const finalEndTime = addMinutes(startTimeFormatted, totalDuration);
 
+  // Helper to calculate times for blocks
+  let runningTime = startTimeFormatted;
+
   return (
-    <div className="space-y-10">
-      <Section title="Ward Activity Details" icon={Calendar}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ModernInput label="Activity Name" value={agenda.data.activity?.name || ""} onChange={(val: string) => updateData('activity', 'name', val)} />
-          <ModernInput label="Location" value={agenda.data.activity?.location || ""} onChange={(val: string) => updateData('activity', 'location', val)} />
-          <div className="md:col-span-2 space-y-2.5">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-1">Description</label>
-            <textarea className="w-full bg-white/50 border border-outline-variant/40 px-6 py-4 rounded-2xl outline-none focus:border-primary transition-all min-h-[120px]" value={agenda.data.activity?.description || ""} onChange={(e) => updateData('activity', 'description', e.target.value)} />
+    <div className="space-y-6">
+      
+      {/* ── Activity Header Bar ─── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4 flex flex-wrap items-center gap-6">
+        <div className="flex-1 min-w-[200px]">
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Activity Name</p>
+          <input 
+            type="text" 
+            value={agenda.data.activity?.name || ""} 
+            onChange={(e) => updateData('activity', 'name', e.target.value)}
+            placeholder="Enter activity name..."
+            className="text-base font-black text-secondary bg-transparent border-none p-0 outline-none w-full"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] font-black uppercase text-slate-400">Total Duration</span>
+            <span className="text-sm font-black text-secondary">{totalDuration} min</span>
+          </div>
+          <div className="w-px h-8 bg-slate-100" />
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black uppercase text-slate-400">Expected End</span>
+            <span className="text-sm font-black text-secondary">{finalEndTime}</span>
           </div>
         </div>
-      </Section>
-      <Section title="Activity Program" icon={Clock}>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between px-8 py-5 bg-primary/5 rounded-[2rem] border border-primary/10 mb-4">
-            <div className="flex items-center gap-6">
-              <div className="flex flex-col"><span className="text-[9px] font-black uppercase tracking-widest text-primary/40">Duration</span><span className="text-lg font-black text-primary">{totalDuration} min</span></div>
-              <div className="flex flex-col"><span className="text-[9px] font-black uppercase tracking-widest text-primary/40">Expected End</span><span className="text-lg font-black text-primary">{finalEndTime}</span></div>
-            </div>
-            <div className="px-4 py-2 bg-white rounded-xl border border-primary/10 text-[10px] font-black uppercase text-primary/60">Starts at {startTimeFormatted}</div>
+      </div>
+
+      {/* ── Details Section ─── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-secondary" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Event Details</span>
+        </div>
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ModernInput 
+            label="Location" 
+            value={agenda.data.activity?.location || ""} 
+            onChange={(val: string) => updateData('activity', 'location', val)} 
+            icon={MapPin}
+          />
+          <div className="space-y-2.5">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Description</label>
+            <textarea 
+              className="w-full bg-slate-50 border border-slate-200 px-6 py-4 rounded-2xl outline-none focus:border-secondary transition-all min-h-[100px] text-sm font-medium" 
+              value={agenda.data.activity?.description || ""} 
+              onChange={(e) => updateData('activity', 'description', e.target.value)}
+              placeholder="Describe the activity..."
+            />
           </div>
-          {blocks.map((block: any, i: number) => (
-            <div key={block.id} className="relative flex flex-col gap-4 bg-white p-6 rounded-[2.5rem] border border-outline-variant/20 shadow-sm group">
-              <div className="flex flex-col md:flex-row md:items-center gap-6">
-                <div className="flex items-center gap-4 bg-primary/5 px-6 py-4 rounded-2xl border border-primary/10 shrink-0">
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest">Time</span>
-                    <span className="text-xs font-black text-primary whitespace-nowrap">{block.time} - {block.endTime}</span>
+        </div>
+      </div>
+
+      {/* ── Activity Program ─── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-secondary" />
+            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Activity Program</span>
+          </div>
+          <span className="text-[10px] text-slate-400">{blocks.length} stages · {totalDuration} min</span>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {blocks.map((block: any, i: number) => {
+            const blockStart = runningTime;
+            const blockEnd = addMinutes(blockStart, block.duration || 0);
+            runningTime = blockEnd;
+            const meta = blockMeta(block.type === 'activity_item' ? 'custom' : block.type);
+
+            return (
+              <div key={block.id} className="group flex items-start gap-3 px-5 py-3.5 hover:bg-slate-50 transition-all">
+                {/* Time Indicator */}
+                <div className="flex-shrink-0 w-20 flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-100 py-2">
+                  <span className="text-[10px] font-black text-secondary leading-none">{blockStart}</span>
+                  <span className="text-[7px] font-black text-slate-300 uppercase mt-1">to {blockEnd}</span>
+                </div>
+
+                {/* Field */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-[9px] font-black uppercase tracking-widest ${meta.color}`}>{block.label}</span>
                   </div>
-                </div>
-                
-                <div className="flex-1">
-                  <ModernInput label={block.label} value={block.value} onChange={(val: string) => updateBlock(block.id, val)} />
+                  {block.type === 'hymn' ? (
+                    <HymnPicker
+                      blockId={block.id} value={block.value}
+                      onChange={(val: string) => updateBlock(block.id, val)}
+                      searchHymns={searchHymns} hymnSuggestions={hymnSuggestions}
+                      activeSearchField={activeSearchField} setActiveSearchField={setActiveSearchField}
+                      activeBook={activeBook}
+                    />
+                  ) : (
+                    <input 
+                      type="text" 
+                      value={block.value || ''}
+                      onChange={(e) => updateBlock(block.id, e.target.value)}
+                      placeholder="Details..."
+                      className="w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 font-medium outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all" 
+                    />
+                  )}
                 </div>
 
-                <div className="flex flex-col gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => moveBlock(i, 'up')} disabled={i === 0} className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl disabled:opacity-20"><ChevronLeft className="h-4 w-4 rotate-90" /></button>
-                  <button onClick={() => removeBlock(i)} className="p-2 text-error hover:bg-error/10 rounded-xl"><Trash2 className="h-4 w-4" /></button>
-                  <button onClick={() => moveBlock(i, 'down')} disabled={i === blocks.length - 1} className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl disabled:opacity-20"><ChevronLeft className="h-4 w-4 -rotate-90" /></button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-outline-variant/5">
-                <Clock className="h-3.5 w-3.5 text-on-surface-variant/20" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40 mr-2">Set Duration:</span>
-                {[5, 10, 15, 30, 45, 60].map(mins => (
-                  <button 
-                    key={mins} 
-                    onClick={() => updateBlock(block.id, mins, 'duration')}
-                    className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${block.duration === mins ? "bg-secondary text-white shadow-lg" : "bg-surface-container-low text-on-surface-variant/40 hover:bg-white"}`}
-                  >
-                    {mins}m
-                  </button>
-                ))}
-                <div className="flex items-center gap-2 ml-auto">
-                  <span className="text-[9px] font-black uppercase text-on-surface-variant/20">Custom:</span>
+                {/* Duration Picker */}
+                <div className="flex-shrink-0 flex items-center gap-1 mt-6">
+                  {[5, 10, 15, 30, 45, 60].map(m => (
+                    <button 
+                      key={m} 
+                      onClick={() => updateBlock(block.id, m, 'duration')}
+                      className={`px-2 py-1 rounded-lg text-[9px] font-black transition-all ${block.duration === m ? 'bg-secondary text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                    >
+                      {m}m
+                    </button>
+                  ))}
                   <input 
                     type="number" 
-                    value={block.duration || ""} 
+                    value={block.duration || ''} 
+                    min={1}
                     onChange={(e) => updateBlock(block.id, parseInt(e.target.value) || 0, 'duration')}
-                    className="w-16 bg-surface-container-low border border-outline-variant/10 rounded-lg px-2 py-1 text-[10px] font-black text-center text-primary"
+                    className="w-12 bg-slate-100 rounded-lg border-none text-center text-[10px] font-black text-secondary outline-none px-1 py-1" 
+                  />
+                </div>
+
+                {/* Row actions */}
+                <div className="flex-shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity mt-6">
+                  <button onClick={() => moveBlock(i, 'up')} disabled={i === 0}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-20 transition-all">
+                    <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                  </button>
+                  <button onClick={() => moveBlock(i, 'down')} disabled={i === blocks.length - 1}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-20 transition-all">
+                    <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                  </button>
+                  <button onClick={() => removeBlock(i)}
+                    className="p-1.5 rounded-lg text-red-300 hover:text-red-500 hover:bg-red-50 transition-all">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Add block row */}
+        <div className="px-5 py-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
+          <select 
+            value={newType} 
+            onChange={(e) => setNewType(e.target.value)}
+            className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 outline-none"
+          >
+            <option value="custom">Custom</option>
+            <option value="hymn">Hymn</option>
+            <option value="prayer">Prayer</option>
+            <option value="speaker">Presentation</option>
+            <option value="business">Refreshments</option>
+          </select>
+          <input 
+            type="text" 
+            value={newLabel} 
+            onChange={(e) => setNewLabel(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && newLabel) { addBlock(newType, newLabel); setNewLabel(''); } }}
+            placeholder="Stage label... (e.g. Workshop, Game, etc.)"
+            className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-secondary transition-all" 
+          />
+          <button 
+            onClick={() => { if (newLabel) { addBlock(newType, newLabel); setNewLabel(''); } }}
+            className="flex items-center gap-1.5 bg-secondary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add
+          </button>
+        </div>
+      </div>
+
+      {/* ── Activity Assignments ─── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <ClipboardList className="h-4 w-4 text-secondary" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Assignments & Tasks</span>
+        </div>
+        
+        <div className="divide-y divide-slate-100">
+          {agenda.data.activity.assignments.map((a: any) => (
+            <div key={a.id} className="group flex items-center gap-4 px-5 py-3 hover:bg-slate-50 transition-all">
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[8px] font-black uppercase text-slate-400 ml-1">Task / Responsibility</p>
+                  <input 
+                    type="text" 
+                    value={a.task} 
+                    onChange={(e) => updateAssignment(a.id, 'task', e.target.value)}
+                    placeholder="What needs to be done?"
+                    className="w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium outline-none focus:border-secondary transition-all" 
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[8px] font-black uppercase text-slate-400 ml-1">Assigned Person</p>
+                  <input 
+                    type="text" 
+                    value={a.person} 
+                    onChange={(e) => updateAssignment(a.id, 'person', e.target.value)}
+                    placeholder="Who is responsible?"
+                    className="w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium outline-none focus:border-secondary transition-all" 
                   />
                 </div>
               </div>
+              
+              <div className="flex-shrink-0 space-y-1">
+                <p className="text-[8px] font-black uppercase text-slate-400 ml-1">Status</p>
+                <select 
+                  value={a.status} 
+                  onChange={(e) => updateAssignment(a.id, 'status', e.target.value)} 
+                  className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 outline-none focus:border-secondary transition-all"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <div className="flex-shrink-0 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={() => removeAssignment(a.id)} 
+                  className="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ))}
-          <div className="pt-6 border-t border-outline-variant/10 flex gap-4">
-            <div className="flex-1"><ModernInput label="Add Stage" value={newCustomLabel} onChange={setNewCustomLabel} /></div>
-            <button onClick={() => { if (newCustomLabel) { addBlock('activity_item', newCustomLabel); setNewCustomLabel(''); } }} className="bg-primary text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest mt-6">Add</button>
-          </div>
-        </div>
-      </Section>
-      <Section title="Activity Assignments" icon={ClipboardList}>
-        <div className="space-y-4">
-          {agenda.data.activity.assignments.map((a: any) => (
-            <div key={a.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-white p-4 rounded-2xl border border-outline-variant/10 shadow-sm">
-              <div className="md:col-span-5"><ModernInput label="Task" value={a.task} onChange={(val: string) => updateAssignment(a.id, 'task', val)} /></div>
-              <div className="md:col-span-4"><ModernInput label="Person" value={a.person} onChange={(val: string) => updateAssignment(a.id, 'person', val)} /></div>
-              <div className="md:col-span-2"><select value={a.status} onChange={(e) => updateAssignment(a.id, 'status', e.target.value)} className="w-full bg-white border border-outline-variant/40 px-4 py-4 rounded-2xl text-xs font-bold text-primary appearance-none"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option></select></div>
-              <div className="md:col-span-1 flex justify-end pb-1"><button onClick={() => removeAssignment(a.id)} className="p-3 text-error hover:bg-error/10 rounded-xl"><Trash2 className="h-4 w-4" /></button></div>
+
+          {agenda.data.activity.assignments.length === 0 && (
+            <div className="p-8 text-center">
+              <p className="text-sm text-slate-400 font-medium">No assignments added yet.</p>
             </div>
-          ))}
-          <button onClick={addAssignment} className="w-full py-4 border-2 border-dashed border-outline-variant/40 rounded-2xl text-on-surface-variant/40 hover:text-primary hover:border-primary/40 transition-all flex items-center justify-center gap-2"><Plus className="h-4 w-4" /><span className="text-[10px] font-black uppercase tracking-widest">Add Assignment</span></button>
+          )}
         </div>
-      </Section>
+
+        <div className="p-4 bg-slate-50 border-t border-slate-100">
+          <button 
+            onClick={addAssignment} 
+            className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:text-secondary hover:border-secondary/30 transition-all flex items-center justify-center gap-2 group"
+          >
+            <Plus className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-widest">Add New Assignment</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
+
