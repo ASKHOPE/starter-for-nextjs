@@ -121,6 +121,14 @@ export const server = {
       if (input.search) {
         if (input.collection === 'scriptures') {
           queries.push(Query.search('content', input.search));
+        } else if (['hymns', 'childrens_songbook', 'new_hymns', 'youth_music'].includes(input.collection)) {
+          // If searching music, check if it's a number or a word
+          if (/^\d+$/.test(input.search)) {
+            queries.push(Query.equal('number', input.search));
+          } else {
+            // Full-text search on title for word matches
+            queries.push(Query.search('title', input.search));
+          }
         } else {
           queries.push(Query.search('title', input.search));
         }
@@ -171,6 +179,28 @@ export const server = {
       // In a real app, this might trigger a background task
       // For now, we'll return a success message
       return { success: true, message: "Sync started. Content will be updated shortly." };
+    },
+  }),
+  getTemplates: defineAction({
+    input: z.object({
+      type: z.string().optional(),
+    }),
+    handler: async (input, context) => {
+      const { databases } = await createAdminClient();
+      const DATABASE_ID = import.meta.env.APPWRITE_DATABASE_ID || import.meta.env.PUBLIC_APPWRITE_DATABASE_ID;
+      
+      const queries = [Query.limit(100)];
+      if (input.type) {
+        queries.push(Query.equal('type', input.type));
+      }
+
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, 'templates', queries);
+        return { success: true, templates: response.documents };
+      } catch (err: any) {
+        console.error(`❌ Error fetching templates:`, err.message);
+        return { success: false, templates: [], error: err.message };
+      }
     },
   }),
   getMe: defineAction({

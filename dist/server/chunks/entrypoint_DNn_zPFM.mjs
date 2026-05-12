@@ -1,7 +1,7 @@
-import './server_B_Pg_n71.mjs';
+import './server_Bk0GM6sU.mjs';
 import * as z from 'zod/v4';
 import { Client, Storage, Databases, Account, ID, Query } from 'node-appwrite';
-import { d as defineAction } from './server_yjx_LAnn.mjs';
+import { d as defineAction } from './server_BwkHfUgm.mjs';
 
 async function createAdminClient() {
   const client = new Client().setEndpoint("https://sgp.cloud.appwrite.io/v1").setProject("69fe3c0300373d8bbb90").setKey("standard_2cda44d44aa4ac5d76154fc751d12a5168b811895ca11f3bb03be98cfb377b3c7ba5feeee59b0a3f8e1efccc846814cdbd0188c0367a23220f05e96b295f684767b3a23b426997a8985d795dde184b7214346f9058755ab6393eb0ea58c74389f68a9d39ecafe3cbc578d6745c5659125d6e42782466580fbcffcee1173aee22");
@@ -209,8 +209,9 @@ const server = {
   }),
   getLibraryItems: defineAction({
     input: z.object({
-      collection: z.enum(["hymns", "come_follow_me", "general_conference_talks", "gospel_principles", "childrens_songbook", "new_hymns", "youth_music"]),
-      search: z.string().optional()
+      collection: z.enum(["hymns", "come_follow_me", "general_conference_talks", "gospel_principles", "childrens_songbook", "new_hymns", "youth_music", "scriptures"]),
+      search: z.string().optional(),
+      volume: z.string().optional()
     }),
     handler: async (input, context) => {
       console.log(`📚 Fetching library items for: ${input.collection}`);
@@ -219,7 +220,20 @@ const server = {
       console.log(`   Using Database: ${DATABASE_ID}`);
       const queries = [Query.limit(100)];
       if (input.search) {
-        queries.push(Query.search("title", input.search));
+        if (input.collection === "scriptures") {
+          queries.push(Query.search("content", input.search));
+        } else if (["hymns", "childrens_songbook", "new_hymns", "youth_music"].includes(input.collection)) {
+          if (/^\d+$/.test(input.search)) {
+            queries.push(Query.equal("number", input.search));
+          } else {
+            queries.push(Query.search("title", input.search));
+          }
+        } else {
+          queries.push(Query.search("title", input.search));
+        }
+      }
+      if (input.volume) {
+        queries.push(Query.equal("volume", input.volume));
       }
       try {
         const response = await databases.listDocuments(DATABASE_ID, input.collection, queries);
@@ -257,6 +271,26 @@ const server = {
       const user = await getCurrentUser(session);
       if (!user) throw new Error("Unauthorized");
       return { success: true, message: "Sync started. Content will be updated shortly." };
+    }
+  }),
+  getTemplates: defineAction({
+    input: z.object({
+      type: z.string().optional()
+    }),
+    handler: async (input, context) => {
+      const { databases } = await createAdminClient();
+      const DATABASE_ID = "69fe3dba00048b5937c4";
+      const queries = [Query.limit(100)];
+      if (input.type) {
+        queries.push(Query.equal("type", input.type));
+      }
+      try {
+        const response = await databases.listDocuments(DATABASE_ID, "templates", queries);
+        return { success: true, templates: response.documents };
+      } catch (err) {
+        console.error(`❌ Error fetching templates:`, err.message);
+        return { success: false, templates: [], error: err.message };
+      }
     }
   }),
   getMe: defineAction({

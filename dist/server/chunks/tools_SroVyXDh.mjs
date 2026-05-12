@@ -1,12 +1,12 @@
 import { c as createComponent } from './astro-component_CBny-ftk.mjs';
 import 'piccolore';
 import { T as renderTemplate } from './params-and-props_B3jbH-NX.mjs';
-import { r as renderComponent } from './server_yjx_LAnn.mjs';
-import { $ as $$Layout } from './Layout_6wALqu6j.mjs';
+import { r as renderComponent } from './server_BwkHfUgm.mjs';
+import { $ as $$Layout } from './Layout_CWEyc26O.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { motion } from 'framer-motion';
-import { LayoutTemplate, UserCheck, Calculator, ShieldCheck, Database, Settings, ArrowRight, RefreshCw } from 'lucide-react';
-import { a as actions } from './server_B_Pg_n71.mjs';
+import { LayoutTemplate, UserCheck, Calculator, Database, Settings, ArrowRight, RefreshCw } from 'lucide-react';
+import { a as actions } from './server_Bk0GM6sU.mjs';
 
 const tools = [
   {
@@ -31,13 +31,6 @@ const tools = [
     href: "/tools/attendance"
   },
   {
-    title: "Document Vault",
-    description: "Securely store and share organizational docs.",
-    icon: ShieldCheck,
-    color: "bg-indigo-600",
-    href: "/tools/vault"
-  },
-  {
     title: "Data Export",
     description: "Download agenda and attendance records.",
     icon: Database,
@@ -54,10 +47,7 @@ const tools = [
 ];
 function ToolsHub() {
   return /* @__PURE__ */ jsxs("div", { className: "space-y-12 pb-32", children: [
-    /* @__PURE__ */ jsx("div", { className: "flex flex-col items-center text-center gap-8", children: /* @__PURE__ */ jsxs("div", { className: "max-w-2xl", children: [
-      /* @__PURE__ */ jsx("h1", { className: "text-4xl md:text-5xl font-black text-primary tracking-tight", children: "Admin Tools" }),
-      /* @__PURE__ */ jsx("p", { className: "text-on-surface-variant mt-3 text-lg font-medium", children: "Powerful utilities for ward organizational management." })
-    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "flex flex-col items-center text-center gap-8", children: /* @__PURE__ */ jsx("div", { className: "max-w-2xl", children: /* @__PURE__ */ jsx("h1", { className: "text-4xl md:text-5xl font-black text-primary tracking-tight", children: "Admin Tools" }) }) }),
     /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", children: tools.map((tool, i) => /* @__PURE__ */ jsxs(
       motion.a,
       {
@@ -72,10 +62,7 @@ function ToolsHub() {
             /* @__PURE__ */ jsx("h3", { className: "font-black text-xl text-primary tracking-tight group-hover:text-secondary transition-colors", children: tool.title }),
             /* @__PURE__ */ jsx("p", { className: "text-on-surface-variant text-sm font-medium leading-relaxed", children: tool.description })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "mt-8 flex items-center gap-2 text-xs font-black text-secondary uppercase tracking-widest group-hover:gap-4 transition-all", children: [
-            "Launch Tool ",
-            /* @__PURE__ */ jsx(ArrowRight, { className: "h-4 w-4" })
-          ] })
+          /* @__PURE__ */ jsx("div", { className: "mt-8 flex items-center gap-2 text-xs font-black text-secondary uppercase tracking-widest group-hover:gap-4 transition-all", children: /* @__PURE__ */ jsx(ArrowRight, { className: "h-4 w-4" }) })
         ]
       },
       tool.title

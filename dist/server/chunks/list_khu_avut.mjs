@@ -1,26 +1,30 @@
 import { c as createComponent } from './astro-component_CBny-ftk.mjs';
 import 'piccolore';
 import { T as renderTemplate, B as maybeRenderHead } from './params-and-props_B3jbH-NX.mjs';
-import { r as renderComponent } from './server_yjx_LAnn.mjs';
-import { $ as $$Layout } from './Layout_6wALqu6j.mjs';
+import { r as renderComponent } from './server_BwkHfUgm.mjs';
+import { $ as $$Layout } from './Layout_CWEyc26O.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Search, Loader2, ExternalLink, Music, MessageSquare, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { a as actions } from './server_B_Pg_n71.mjs';
+import { a as actions } from './server_Bk0GM6sU.mjs';
 
-function LibraryList({ collection, title }) {
+function LibraryList({ collection, title, volume }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
   useEffect(() => {
     load();
-  }, [collection]);
+  }, [collection, volume]);
   async function load(query = "") {
     setLoading(true);
     setError(null);
-    const { data } = await actions.getLibraryItems({ collection, search: query });
+    const { data } = await actions.getLibraryItems({
+      collection,
+      search: query,
+      volume: volume || void 0
+    });
     if (data?.success) {
       setItems(data.items);
     } else {
@@ -43,7 +47,7 @@ function LibraryList({ collection, title }) {
         ] }),
         /* @__PURE__ */ jsx("h1", { className: "text-4xl font-black text-primary tracking-tight", children: title || "Library Content" })
       ] }),
-      /* @__PURE__ */ jsx("div", { className: "max-w-md w-full", children: /* @__PURE__ */ jsxs("div", { className: "bg-surface-container-low flex items-center px-5 py-4 rounded-2xl border border-outline-variant/30", children: [
+      /* @__PURE__ */ jsx("div", { className: "max-w-md w-full", children: /* @__PURE__ */ jsxs("div", { className: "bg-surface-container-low flex items-center px-5 py-4 rounded-2xl border border-outline-variant/30 shadow-sm focus-within:shadow-md transition-shadow", children: [
         /* @__PURE__ */ jsx(Search, { className: "h-5 w-5 text-outline" }),
         /* @__PURE__ */ jsx(
           "input",
@@ -86,10 +90,18 @@ function LibraryList({ collection, title }) {
                 item.number
               ] })
             ] }),
-            /* @__PURE__ */ jsx("h3", { className: "font-bold text-primary line-clamp-2 flex-1 mb-4", children: item.title }),
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-[10px] font-black text-secondary uppercase tracking-widest", children: [
-              "Read More ",
-              /* @__PURE__ */ jsx(ExternalLink, { className: "h-3 w-3" })
+            /* @__PURE__ */ jsx("h3", { className: "font-bold text-primary mb-2", children: item.title }),
+            collection === "scriptures" && item.content && /* @__PURE__ */ jsxs("p", { className: "text-sm text-on-surface-variant line-clamp-3 mb-4 italic leading-relaxed", children: [
+              '"',
+              item.content,
+              '"'
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "mt-auto flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-[10px] font-black text-secondary uppercase tracking-widest", children: [
+                "Read More ",
+                /* @__PURE__ */ jsx(ExternalLink, { className: "h-3 w-3" })
+              ] }),
+              item.book && /* @__PURE__ */ jsx("span", { className: "text-[10px] font-bold text-outline uppercase tracking-wider", children: item.book })
             ] })
           ]
         },
@@ -105,7 +117,8 @@ const $$List = createComponent(($$result, $$props, $$slots) => {
   Astro2.self = $$List;
   const collection = Astro2.url.searchParams.get("collection");
   const title = Astro2.url.searchParams.get("title");
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": title || "Sacred Library" }, { "default": ($$result2) => renderTemplate`${collection ? renderTemplate`${renderComponent($$result2, "LibraryList", LibraryList, { "client:load": true, "collection": collection, "title": title, "client:component-hydration": "load", "client:component-path": "C:/Users/Admin/Documents/Repo Proj/calling/src/components/pages/LibraryList", "client:component-export": "LibraryList" })}` : renderTemplate`${maybeRenderHead()}<div class="flex items-center justify-center min-h-[60vh] text-on-surface-variant font-bold">
+  const volume = Astro2.url.searchParams.get("volume");
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": title || "Sacred Library" }, { "default": ($$result2) => renderTemplate`${collection ? renderTemplate`${renderComponent($$result2, "LibraryList", LibraryList, { "client:load": true, "collection": collection, "title": title, "volume": volume, "client:component-hydration": "load", "client:component-path": "C:/Users/Admin/Documents/Repo Proj/calling/src/components/pages/LibraryList", "client:component-export": "LibraryList" })}` : renderTemplate`${maybeRenderHead()}<div class="flex items-center justify-center min-h-[60vh] text-on-surface-variant font-bold">
 Category Not Found
 </div>`}` })}`;
 }, "C:/Users/Admin/Documents/Repo Proj/calling/src/pages/resources/list.astro", void 0);

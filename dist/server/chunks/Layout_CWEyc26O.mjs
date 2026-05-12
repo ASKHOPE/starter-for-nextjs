@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_CBny-ftk.mjs';
 import 'piccolore';
 import { a4 as addAttribute, bk as renderHead, T as renderTemplate, D as renderSlot } from './params-and-props_B3jbH-NX.mjs';
-import { r as renderComponent } from './server_yjx_LAnn.mjs';
+import { r as renderComponent } from './server_BwkHfUgm.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { Bell, User, Home, Calendar, BookOpen, Wrench } from 'lucide-react';
 import { useState } from 'react';

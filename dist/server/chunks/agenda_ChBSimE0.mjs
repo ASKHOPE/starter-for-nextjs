@@ -1,13 +1,13 @@
 import { c as createComponent } from './astro-component_CBny-ftk.mjs';
 import 'piccolore';
 import { T as renderTemplate, B as maybeRenderHead } from './params-and-props_B3jbH-NX.mjs';
-import { r as renderComponent } from './server_yjx_LAnn.mjs';
-import { $ as $$Layout } from './Layout_6wALqu6j.mjs';
+import { r as renderComponent } from './server_BwkHfUgm.mjs';
+import { $ as $$Layout } from './Layout_CWEyc26O.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { motion } from 'framer-motion';
 import { Loader2, ChevronLeft, Printer, Share, Church, Calendar, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { a as actions } from './server_B_Pg_n71.mjs';
+import { a as actions } from './server_Bk0GM6sU.mjs';
 
 const NEW_SCHEDULE_DATE = /* @__PURE__ */ new Date("2026-09-06");
 const isNewSchedule = (dateStr) => {
@@ -96,18 +96,14 @@ function PreviewAgenda({ agendaId }) {
               /* @__PURE__ */ jsx(ProgramLine, { label: "Presiding", value: agenda.data.leadership.presiding }),
               /* @__PURE__ */ jsx(ProgramLine, { label: "Conducting", value: agenda.data.leadership.conducting }),
               /* @__PURE__ */ jsx(ProgramLine, { label: "Organist", value: agenda.data.leadership.organist }),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Chorister", value: agenda.data.leadership.chorister })
+              /* @__PURE__ */ jsx(ProgramLine, { label: "Chorister", value: agenda.data.leadership.chorister }),
+              /* @__PURE__ */ jsx(ProgramLine, { label: "Acknowledging", value: agenda.data.leadership.acknowledgeLeader })
             ] }),
-            /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Opening Hymn", value: agenda.data.program.openingHymn, centered: true }),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Invocation", value: "By Invitation", centered: true }),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Ward Business", value: "As Directed", centered: true }),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Sacrament Hymn", value: agenda.data.program.sacramentHymn, centered: true }),
-              /* @__PURE__ */ jsx("div", { className: "py-4 text-center italic text-slate-400 text-sm", children: "The Administration of the Sacrament" }),
-              agenda.data.program.items?.map((item, i) => /* @__PURE__ */ jsx(ProgramLine, { label: item.type, value: item.label, centered: true }, i)),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Closing Hymn", value: agenda.data.program.closingHymn, centered: true }),
-              /* @__PURE__ */ jsx(ProgramLine, { label: "Benediction", value: "By Invitation", centered: true })
+            agenda.data.program.announcements && /* @__PURE__ */ jsxs("div", { className: "bg-slate-50 p-6 rounded-xl text-left space-y-2 border border-slate-100", children: [
+              /* @__PURE__ */ jsx("span", { className: "text-[10px] font-black uppercase tracking-widest text-slate-400", children: "Announcements" }),
+              /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-600 leading-relaxed whitespace-pre-wrap", children: agenda.data.program.announcements })
             ] }),
+            /* @__PURE__ */ jsx("div", { className: "space-y-6", children: agenda.data.program.blocks?.map((block, i) => block.type === "sacrament" ? /* @__PURE__ */ jsx("div", { className: "py-4 text-center italic text-slate-400 text-sm", children: "The Administration of the Sacrament" }, i) : /* @__PURE__ */ jsx(ProgramLine, { label: block.label, value: block.value, centered: true }, i)) }),
             /* @__PURE__ */ jsxs("div", { className: "pt-12 space-y-8", children: [
               /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
                 /* @__PURE__ */ jsx("div", { className: "w-16 h-px bg-slate-200 mx-auto mb-4" }),
@@ -153,7 +149,19 @@ function PreviewAgenda({ agendaId }) {
               ] }, i)) }) })
             ] })
           ] }),
-          /* @__PURE__ */ jsx("div", { className: "mt-auto pt-12 text-[10px] text-slate-400 font-medium uppercase tracking-[0.1em]", children: "Oak Hills Stake • Zion Terrace Region" })
+          /* @__PURE__ */ jsxs("div", { className: "mt-auto pt-12 text-[10px] text-slate-400 font-medium uppercase tracking-[0.1em] flex justify-between w-full border-t border-slate-100", children: [
+            /* @__PURE__ */ jsx("span", { children: "Oak Hills Stake • Zion Terrace Region" }),
+            /* @__PURE__ */ jsxs("div", { className: "flex gap-4", children: [
+              agenda.data.attendance?.beforeSacrament && /* @__PURE__ */ jsxs("span", { children: [
+                "Before: ",
+                agenda.data.attendance.beforeSacrament
+              ] }),
+              agenda.data.attendance?.afterSacrament && /* @__PURE__ */ jsxs("span", { children: [
+                "After: ",
+                agenda.data.attendance.afterSacrament
+              ] })
+            ] })
+          ] })
         ]
       }
     ),
